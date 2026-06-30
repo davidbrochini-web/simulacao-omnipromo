@@ -11,7 +11,7 @@
       --green:      #00C853;
       --green-dim:  rgba(0,200,83,.10);
       --green-bdr:  rgba(0,200,83,.25);
-      --dark:       #0D1829;
+      --dark:       #FFFFFF;
       --nav-bg:     #1A1D23;
       --bg:         #F0F2F5;
       --surface:    #FFFFFF;
@@ -39,6 +39,7 @@
     .entry-left {
       flex: 0 0 62%;
       background: var(--dark);
+      border-right: 1px solid var(--border);
       position: relative; overflow: hidden;
       display: flex; flex-direction: column;
       padding: 40px 48px;
@@ -48,14 +49,14 @@
       content: '';
       position: absolute; top: 50%; left: 58%;
       width: 340px; height: 340px;
-      border: 1.5px solid rgba(99,179,237,.18);
+      border: 1.5px solid rgba(0,200,83,.12);
       transform: translate(-50%,-50%) rotate(45deg);
     }
     .entry-left::after {
       content: '';
       position: absolute; top: 50%; left: 58%;
       width: 220px; height: 220px;
-      border: 1.5px solid rgba(99,179,237,.10);
+      border: 1.5px solid rgba(0,200,83,.07);
       transform: translate(-50%,-50%) rotate(45deg);
     }
     .el-logo { display: flex; align-items: center; gap: 10px; z-index: 1; }
@@ -66,21 +67,22 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 11px; font-weight: 700; color: var(--green); letter-spacing: -1px;
     }
-    .el-logo-name { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -.3px; }
+    .el-logo-name { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -.3px; }
     .el-logo-name em { color: var(--green); font-style: normal; }
-    .el-tagline { font-size: 9.5px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.3); margin-top: 4px; }
+    .el-tagline { font-size: 9.5px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; }
 
     .el-body { flex: 1; display: flex; flex-direction: column; justify-content: center; z-index: 1; padding-bottom: 20px; }
     .el-headline {
-      font-size: 52px; font-weight: 800;
-      color: var(--green); line-height: 1.0;
-      letter-spacing: -2px; text-transform: uppercase;
-      margin-bottom: 20px; max-width: 480px;
+      font-size: 42px; font-weight: 800;
+      color: var(--text); line-height: 1.05;
+      letter-spacing: -1.5px;
+      margin-bottom: 16px; max-width: 480px;
     }
-    .el-sub { font-size: 14px; color: rgba(255,255,255,.45); line-height: 1.6; max-width: 340px; }
+    .el-headline span { color: var(--green); }
+    .el-sub { font-size: 14px; color: var(--text-sec); line-height: 1.6; max-width: 340px; }
 
     .el-dots { display: flex; gap: 6px; margin-top: 36px; }
-    .el-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,200,83,.3); }
+    .el-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
     .el-dot:first-child { background: var(--green); }
 
     /* Right panel */
@@ -297,7 +299,7 @@
       </div>
     </div>
     <div class="el-body">
-      <div class="el-headline">Valide.<br>Aprove.<br>Avance.</div>
+      <div class="el-headline">Validação<br><span>OmniPromo</span></div>
       <div class="el-sub">Portal de revisão e aprovação de escopos — Innovation Brindes.</div>
       <div class="el-dots">
         <div class="el-dot"></div><div class="el-dot"></div><div class="el-dot"></div>
