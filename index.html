@@ -3,485 +3,590 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OmniPromo — Portal de Escopos · Innovation Brindes</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>OmniPromo — Portal de Aprovações · Innovation Brindes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --nav:        #1A1D23;
-      --nav-bdr:    #2A2E38;
+      --green:      #00C853;
+      --green-dim:  rgba(0,200,83,.10);
+      --green-bdr:  rgba(0,200,83,.25);
+      --dark:       #0B1F16;
+      --nav-bg:     #1A1D23;
       --bg:         #F0F2F5;
       --surface:    #FFFFFF;
-      --accent:     #00C853;
-      --accent-dim: rgba(0,200,83,.10);
-      --accent-bdr: rgba(0,200,83,.30);
       --text:       #1A1D23;
       --text-sec:   #6B7280;
       --text-muted: #9CA3AF;
       --border:     #E5E7EB;
-      --border-d:   #D1D5DB;
       --review:     #F59E0B;
       --review-bg:  #FEF3C7;
+      --review-tx:  #92400E;
       --approved:   #10B981;
       --approved-bg:#D1FAE5;
-      --dev:        #3B82F6;
-      --dev-bg:     #DBEAFE;
-      --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
-      --shadow-md:  0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.05);
+      --approved-tx:#065F46;
+      --cancelled:  #EF4444;
+      --cancelled-bg:#FEE2E2;
+      --cancelled-tx:#991B1B;
+      --shadow:     0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md:  0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
     }
+    body { font-family: 'Inter', system-ui, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; background: var(--bg); }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', system-ui, sans-serif;
-      font-size: 14px;
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-    }
+    /* ══════════ ENTRY SCREEN ══════════ */
+    #screen-entry { display: flex; height: 100vh; }
 
-    /* ─── HEADER / NAV ─── */
-    .nav {
-      background: var(--nav);
-      border-bottom: 1px solid var(--nav-bdr);
-      height: 52px;
-      display: flex; align-items: center;
-      padding: 0 32px;
-      position: sticky; top: 0; z-index: 100;
-    }
-    .nav-left  { display: flex; align-items: center; gap: 14px; flex: 1; }
-    .nav-right { display: flex; align-items: center; gap: 8px; }
-
-    .logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
-    .logo-icon {
-      width: 28px; height: 28px;
-      border: 1.5px solid var(--accent);
-      border-radius: 5px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10px; font-weight: 700; color: var(--accent);
-      letter-spacing: -1px; font-family: 'Inter', monospace;
-    }
-    .logo-name { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -.2px; }
-    .logo-name em { color: var(--accent); font-style: normal; }
-
-    .nav-div { width: 1px; height: 18px; background: #2E333D; }
-
-    .nav-client { font-size: 11px; font-weight: 500; color: #6B7280; letter-spacing: .04em; text-transform: uppercase; }
-
-    .chip {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 3px 10px; border-radius: 4px;
-      font-size: 10.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
-    }
-    .chip-ghost  { border: 1px solid #2E333D; color: #6B7280; }
-    .chip-live   { background: rgba(0,200,83,.12); border: 1px solid rgba(0,200,83,.25); color: var(--accent); }
-    .dot-live    { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: blink 2s infinite; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-    /* ─── PAGE HEADER ─── */
-    .page-head {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 28px 32px 24px;
-    }
-    .page-kicker {
-      font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 8px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .page-kicker::before { content:''; width:16px; height:1.5px; background: var(--accent); }
-    .page-h1 { font-size: 22px; font-weight: 700; letter-spacing: -.4px; color: var(--text); margin-bottom: 4px; }
-    .page-h1 strong { color: var(--accent); font-weight: 700; }
-    .page-sub { font-size: 13px; color: var(--text-sec); }
-
-    /* ─── MAIN ─── */
-    .main { max-width: 1200px; margin: 0 auto; padding: 28px 32px 64px; }
-
-    /* ─── STAT CARDS ─── */
-    .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
-    .stat {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px; padding: 18px 20px;
-      box-shadow: var(--shadow);
+    .entry-left {
+      flex: 0 0 62%;
+      background: var(--dark);
+      position: relative; overflow: hidden;
       display: flex; flex-direction: column;
+      padding: 40px 48px;
     }
-    .stat-lbl {
-      font-size: 10px; font-weight: 600; letter-spacing: .08em;
-      text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;
+    /* Geometric decorations */
+    .entry-left::before {
+      content: '';
+      position: absolute; top: 50%; left: 58%;
+      width: 340px; height: 340px;
+      border: 1.5px solid rgba(0,200,83,.15);
+      transform: translate(-50%,-50%) rotate(45deg);
     }
-    .stat-row { display: flex; align-items: flex-end; justify-content: space-between; }
-    .stat-val { font-size: 30px; font-weight: 700; line-height: 1; }
-    .sv-all      { color: var(--text); }
-    .sv-approved { color: var(--approved); }
-    .sv-review   { color: var(--review); }
-    .sv-dev      { color: var(--dev); }
-    .stat-icon { font-size: 20px; opacity: .25; }
-
-    /* ─── PIPELINE ─── */
-    .pipeline {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px; padding: 20px 28px;
-      box-shadow: var(--shadow);
-      margin-bottom: 24px;
+    .entry-left::after {
+      content: '';
+      position: absolute; top: 50%; left: 58%;
+      width: 220px; height: 220px;
+      border: 1.5px solid rgba(0,200,83,.10);
+      transform: translate(-50%,-50%) rotate(45deg);
     }
-    .pipe-head {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 22px;
-    }
-    .pipe-title { font-size: 12px; font-weight: 600; color: var(--text-sec); letter-spacing: .06em; text-transform: uppercase; }
-
-    .pipe-track { display: flex; align-items: center; }
-    .pipe-stage { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
-    .pipe-stage:not(:last-child)::after {
-      content: ''; position: absolute; top: 16px; left: 50%; width: 100%; height: 2px;
-      background: var(--border); z-index: 0;
-    }
-    .pipe-dot {
-      width: 32px; height: 32px; border-radius: 50%;
+    .el-logo { display: flex; align-items: center; gap: 10px; z-index: 1; }
+    .el-logo-icon {
+      width: 36px; height: 36px;
+      border: 2px solid var(--green);
+      border-radius: 7px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 700;
-      position: relative; z-index: 1; margin-bottom: 8px;
+      font-size: 11px; font-weight: 700; color: var(--green); letter-spacing: -1px;
     }
-    .pd-dev    { background: var(--dev-bg);      color: var(--dev);      border: 1.5px solid rgba(59,130,246,.3); }
-    .pd-review { background: var(--review-bg);   color: var(--review);   border: 1.5px solid rgba(245,158,11,.3); }
-    .pd-app    { background: var(--approved-bg); color: var(--approved); border: 1.5px solid rgba(16,185,129,.3); }
-    .pipe-stage-name { font-size: 11px; color: var(--text-muted); text-align: center; line-height: 1.3; }
-    .pipe-stage-count { font-size: 11px; font-weight: 600; text-align: center; margin-top: 2px; }
-    .pc-dev    { color: var(--dev); }
-    .pc-review { color: var(--review); }
-    .pc-app    { color: var(--approved); }
+    .el-logo-name { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -.3px; }
+    .el-logo-name em { color: var(--green); font-style: normal; }
+    .el-tagline { font-size: 9.5px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.3); margin-top: 4px; }
 
-    /* ─── TOOLBAR ─── */
-    .toolbar {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+    .el-body { flex: 1; display: flex; flex-direction: column; justify-content: center; z-index: 1; padding-bottom: 20px; }
+    .el-headline {
+      font-size: 52px; font-weight: 800;
+      color: var(--green); line-height: 1.0;
+      letter-spacing: -2px; text-transform: uppercase;
+      margin-bottom: 20px; max-width: 480px;
     }
+    .el-sub { font-size: 14px; color: rgba(255,255,255,.45); line-height: 1.6; max-width: 340px; }
+
+    .el-dots { display: flex; gap: 6px; margin-top: 36px; }
+    .el-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,200,83,.3); }
+    .el-dot:first-child { background: var(--green); }
+
+    /* Right panel */
+    .entry-right {
+      flex: 1; background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      padding: 48px 40px;
+    }
+    .entry-form { width: 100%; max-width: 320px; }
+    .ef-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #F3F4F6; border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px; font-size: 24px; color: var(--text-muted);
+    }
+    .ef-title { font-size: 18px; font-weight: 700; color: var(--text); text-align: center; margin-bottom: 4px; }
+    .ef-sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 28px; }
+    .ef-label { font-size: 12px; font-weight: 600; color: var(--text-sec); margin-bottom: 6px; display: block; }
+    .ef-input {
+      width: 100%; padding: 11px 14px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text);
+      background: #F9FAFB; outline: none; transition: border-color .15s;
+      margin-bottom: 16px;
+    }
+    .ef-input:focus { border-color: var(--green); background: #fff; box-shadow: 0 0 0 3px rgba(0,200,83,.08); }
+    .ef-input::placeholder { color: var(--text-muted); }
+    .ef-btn {
+      width: 100%; padding: 12px;
+      background: var(--green); border: none; border-radius: 8px;
+      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
+      color: #fff; cursor: pointer; transition: all .15s;
+      box-shadow: 0 2px 8px rgba(0,200,83,.3);
+    }
+    .ef-btn:hover { background: #00B84A; box-shadow: 0 4px 14px rgba(0,200,83,.4); transform: translateY(-1px); }
+    .ef-btn:active { transform: none; }
+    .ef-footer { margin-top: 24px; text-align: center; font-size: 11px; color: var(--text-muted); }
+
+    /* ══════════ PORTAL SCREEN ══════════ */
+    #screen-portal { display: none; min-height: 100vh; }
+
+    /* NAV */
+    .nav {
+      background: var(--nav-bg); height: 52px;
+      display: flex; align-items: center; padding: 0 28px;
+      position: sticky; top: 0; z-index: 100;
+      border-bottom: 1px solid #2A2E38;
+    }
+    .nav-left { display: flex; align-items: center; gap: 14px; flex: 1; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+    .logo-icon { width: 28px; height: 28px; border: 1.5px solid var(--green); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--green); letter-spacing: -1px; }
+    .logo-name { font-size: 15px; font-weight: 700; color: #fff; }
+    .logo-name em { color: var(--green); font-style: normal; }
+    .nav-sep { width: 1px; height: 18px; background: #2E333D; }
+    .nav-client { font-size: 11px; font-weight: 500; color: #6B7280; letter-spacing: .04em; text-transform: uppercase; }
+    .nav-user {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 12px; border-radius: 6px;
+      border: 1px solid #2E333D; cursor: pointer;
+    }
+    .nav-user-avatar {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--green-dim); border: 1.5px solid var(--green-bdr);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: var(--green);
+    }
+    .nav-user-name { font-size: 12px; font-weight: 500; color: #9CA3AF; }
+    .nav-logout { font-size: 11px; color: #4B5568; cursor: pointer; padding: 5px 10px; border-radius: 5px; border: 1px solid #2E333D; background: transparent; font-family: 'Inter'; transition: all .12s; }
+    .nav-logout:hover { color: #9CA3AF; border-color: #3D4451; }
+
+    /* PAGE HEADER */
+    .page-head { background: var(--surface); border-bottom: 1px solid var(--border); padding: 22px 28px 20px; }
+    .ph-kicker { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--green); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .ph-kicker::before { content:''; width: 14px; height: 1.5px; background: var(--green); }
+    .ph-h1 { font-size: 20px; font-weight: 700; letter-spacing: -.3px; color: var(--text); }
+    .ph-h1 strong { color: var(--green); }
+    .ph-sub { font-size: 12.5px; color: var(--text-sec); margin-top: 3px; }
+
+    /* MAIN */
+    .main { max-width: 1200px; margin: 0 auto; padding: 24px 28px 64px; }
+
+    /* SUMMARY BAR */
+    .summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+    .sum-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px 18px;
+      box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px;
+      border-left: 3px solid transparent;
+    }
+    .sum-card.s-review  { border-left-color: var(--review); }
+    .sum-card.s-approved{ border-left-color: var(--approved); }
+    .sum-card.s-cancelled{ border-left-color: var(--cancelled); }
+    .sum-icon { font-size: 22px; opacity: .7; }
+    .sum-right {}
+    .sum-val { font-size: 26px; font-weight: 700; line-height: 1; }
+    .sum-card.s-review   .sum-val { color: var(--review); }
+    .sum-card.s-approved .sum-val { color: var(--approved); }
+    .sum-card.s-cancelled .sum-val { color: var(--cancelled); }
+    .sum-lbl { font-size: 11px; font-weight: 500; color: var(--text-muted); margin-top: 2px; }
+
+    /* TOOLBAR */
+    .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
     .filter-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
-    .ftab {
-      padding: 6px 14px; border-radius: 6px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text-sec);
-      font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 500;
-      cursor: pointer; transition: all .12s; box-shadow: var(--shadow);
-    }
-    .ftab:hover { border-color: var(--border-d); color: var(--text); }
-    .ftab.on {
-      background: var(--accent); border-color: var(--accent);
-      color: #fff; box-shadow: 0 2px 8px rgba(0,200,83,.25);
-    }
+    .ftab { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-sec); font-family: 'Inter'; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all .12s; box-shadow: var(--shadow); }
+    .ftab:hover { border-color: #D1D5DB; color: var(--text); }
+    .ftab.on { background: var(--green); border-color: var(--green); color: #fff; box-shadow: 0 2px 8px rgba(0,200,83,.25); }
     .toolbar-hint { font-size: 11.5px; color: var(--text-muted); }
 
-    /* ─── CARDS GRID ─── */
+    /* GRID */
     .grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px; overflow: hidden;
-      display: flex; flex-direction: column;
-      box-shadow: var(--shadow);
-      transition: all .15s;
-    }
-    .card:hover {
-      border-color: var(--border-d);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
-    }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow); transition: all .15s; }
+    .card:hover { border-color: #D1D5DB; box-shadow: var(--shadow-md); transform: translateY(-2px); }
     .card.hidden { display: none !important; }
 
     /* Thumb */
-    .thumb {
-      height: 100px; position: relative; overflow: hidden;
-      background: #F8FAFC; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .thumb-icon { font-size: 26px; opacity: .12; }
-    .thumb-num {
-      position: absolute; bottom: 2px; right: 10px;
-      font-size: 48px; font-weight: 700;
-      color: rgba(0,0,0,.04); line-height: 1; user-select: none;
-    }
-    .thumb-top {
-      position: absolute; top: 10px; left: 10px; right: 10px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .ver-tag {
-      font-size: 10px; font-weight: 600; letter-spacing: .04em;
-      color: var(--text-muted); background: #fff;
-      padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border);
-    }
+    .thumb { height: 96px; position: relative; overflow: hidden; background: #F8FAFC; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; }
+    .thumb-icon { font-size: 24px; opacity: .10; }
+    .thumb-num { position: absolute; bottom: 2px; right: 10px; font-size: 46px; font-weight: 700; color: rgba(0,0,0,.04); line-height: 1; user-select: none; }
+    .thumb-top { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; align-items: center; justify-content: space-between; }
+    .ver-tag { font-size: 10px; font-weight: 600; color: var(--text-muted); background: #fff; padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border); }
 
     /* Badge */
-    .badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 3px 8px; border-radius: 4px;
-      font-size: 10.5px; font-weight: 600;
-    }
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 600; }
     .badge::before { content:''; width:4px; height:4px; border-radius:50%; background:currentColor; }
-    .b-review   { background: var(--review-bg);   color: #92400E; }
-    .b-approved { background: var(--approved-bg); color: #065F46; }
-    .b-dev      { background: var(--dev-bg);       color: #1E40AF; }
+    .b-review    { background: var(--review-bg);    color: var(--review-tx); }
+    .b-approved  { background: var(--approved-bg);  color: var(--approved-tx); }
+    .b-cancelled { background: var(--cancelled-bg); color: var(--cancelled-tx); }
 
     /* Card body */
     .card-body { padding: 14px 16px 0; flex: 1; }
-    .card-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; letter-spacing: -.1px; }
-    .card-desc { font-size: 12px; color: var(--text-sec); line-height: 1.55; }
+    .card-name { font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .card-desc { font-size: 12px; color: var(--text-sec); line-height: 1.5; }
 
     /* Card foot */
-    .card-foot {
-      padding: 12px 16px 14px;
-      display: flex; align-items: center; justify-content: space-between;
-      border-top: 1px solid var(--border); margin-top: 14px;
-    }
-    .btn-ver {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 6px 12px; border-radius: 6px;
-      border: 1px solid var(--accent-bdr);
-      background: var(--accent-dim);
-      color: #065F46;
-      font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600;
-      text-decoration: none; transition: all .12s; cursor: pointer;
-    }
-    .btn-ver:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .btn-ver svg { width: 11px; height: 11px; }
+    .card-foot { padding: 12px 16px 14px; border-top: 1px solid var(--border); margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .card-foot-top { display: flex; align-items: center; justify-content: space-between; }
+    .card-actions { display: flex; gap: 6px; }
 
-    /* ─── FOOTER ─── */
-    .ftr {
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      padding: 18px 32px;
+    .btn { display: inline-flex; align-items: center; gap: 4px; padding: 5px 11px; border-radius: 6px; font-family: 'Inter'; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all .12s; text-decoration: none; border: 1px solid transparent; }
+    .btn-view  { background: var(--green-dim); border-color: var(--green-bdr); color: var(--approved-tx); }
+    .btn-view:hover { background: var(--green); border-color: var(--green); color: #fff; }
+    .btn-approve { background: #D1FAE5; border-color: rgba(16,185,129,.3); color: #065F46; }
+    .btn-approve:hover { background: #10B981; border-color: #10B981; color: #fff; }
+    .btn-adjust  { background: #FEF3C7; border-color: rgba(245,158,11,.3); color: #92400E; }
+    .btn-adjust:hover { background: #F59E0B; border-color: #F59E0B; color: #fff; }
+    .btn-undo    { background: #F3F4F6; border-color: var(--border); color: var(--text-sec); }
+    .btn-undo:hover { background: #E5E7EB; border-color: #D1D5DB; color: var(--text); }
+    .btn svg { width: 11px; height: 11px; }
+
+    /* ── HISTORY ── */
+    .history { margin-top: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; }
+    .history-head {
       display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; cursor: pointer; user-select: none;
+      border-bottom: 1px solid var(--border);
     }
+    .history-head:hover { background: #FAFAFA; }
+    .history-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .history-count { font-size: 11px; font-weight: 600; background: #F3F4F6; color: var(--text-muted); padding: 2px 8px; border-radius: 10px; }
+    .history-toggle { font-size: 12px; color: var(--text-muted); }
+    .history-body { padding: 0; }
+    .history-body.collapsed { display: none; }
+    .history-empty { padding: 28px; text-align: center; font-size: 13px; color: var(--text-muted); }
+    .history-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 20px; border-bottom: 1px solid var(--border);
+      transition: background .1s;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-item:hover { background: #FAFAFA; }
+    .hi-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+    .hi-approved  { background: var(--approved-bg); }
+    .hi-adjustment{ background: var(--review-bg); }
+    .hi-reverted  { background: #F3F4F6; }
+    .hi-body { flex: 1; }
+    .hi-action { font-size: 12.5px; font-weight: 600; color: var(--text); }
+    .hi-scope  { font-size: 12px; color: var(--text-sec); }
+    .hi-right  { text-align: right; flex-shrink: 0; }
+    .hi-person { font-size: 11.5px; font-weight: 500; color: var(--text-sec); }
+    .hi-time   { font-size: 11px; color: var(--text-muted); }
+    .history-clear { display: block; width: 100%; padding: 10px; text-align: center; font-size: 11.5px; color: var(--text-muted); background: none; border: none; border-top: 1px solid var(--border); cursor: pointer; font-family: 'Inter'; transition: all .12s; }
+    .history-clear:hover { color: var(--cancelled); background: #FFF5F5; }
+
+    /* ── FOOTER ── */
+    .ftr { background: var(--surface); border-top: 1px solid var(--border); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; }
     .ftr-l { font-size: 11px; color: var(--text-muted); }
-    .ftr-r { font-size: 11px; }
-    .ftr-r a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .ftr-r a { font-size: 11px; color: var(--green); text-decoration: none; font-weight: 500; }
     .ftr-r a:hover { text-decoration: underline; }
 
-    @media(max-width:1024px){ .grid{grid-template-columns:repeat(2,1fr);} .stats{grid-template-columns:repeat(2,1fr);} }
-    @media(max-width:640px){
-      .nav,.page-head,.main{ padding-left:16px; padding-right:16px; }
-      .grid{grid-template-columns:1fr;}
-      .page-h1{font-size:18px;}
+    @media(max-width:900px){
+      .grid { grid-template-columns: repeat(2,1fr); }
+      .summary { grid-template-columns: repeat(3,1fr); }
+      .entry-left { display: none; }
+      .entry-right { flex: 1; }
+    }
+    @media(max-width:600px){
+      .grid { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: 1fr 1fr; }
+      .main, .nav, .page-head, .ftr { padding-left: 16px; padding-right: 16px; }
     }
   </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav class="nav">
-  <div class="nav-left">
-    <a class="logo" href="#">
-      <div class="logo-icon">&lt;/&gt;</div>
-      <div class="logo-name">Omni<em>Promo</em></div>
-    </a>
-    <div class="nav-div"></div>
-    <div class="nav-client">Innovation Brindes</div>
+<!-- ══ ENTRY SCREEN ══ -->
+<div id="screen-entry">
+  <div class="entry-left">
+    <div class="el-logo">
+      <div class="el-logo-icon">&lt;/&gt;</div>
+      <div>
+        <div class="el-logo-name">Omni<em>Promo</em></div>
+        <div class="el-tagline">Conectando ideias, integrando processos</div>
+      </div>
+    </div>
+    <div class="el-body">
+      <div class="el-headline">Valide.<br>Aprove.<br>Avance.</div>
+      <div class="el-sub">Portal de revisão e aprovação de escopos — Innovation Brindes.</div>
+      <div class="el-dots">
+        <div class="el-dot"></div><div class="el-dot"></div><div class="el-dot"></div>
+      </div>
+    </div>
   </div>
-  <div class="nav-right">
-    <div class="chip chip-ghost">Sprint #01</div>
-    <div class="chip chip-live"><span class="dot-live"></span>Portal Ativo</div>
+  <div class="entry-right">
+    <div class="entry-form">
+      <div class="ef-avatar">👤</div>
+      <div class="ef-title">Bem-vindo(a)</div>
+      <div class="ef-sub">Portal de Aprovações · Innovation Brindes</div>
+      <label class="ef-label" for="inp-name">Seu nome</label>
+      <input class="ef-input" id="inp-name" type="text" placeholder="Ex: Ana Carolina" autocomplete="off">
+      <button class="ef-btn" onclick="login()">Entrar no portal</button>
+      <div class="ef-footer">Nenhuma senha necessária — apenas identifique-se.</div>
+    </div>
   </div>
-</nav>
-
-<!-- PAGE HEADER -->
-<div class="page-head">
-  <div class="page-kicker">Portal de Escopos &amp; Aprovações</div>
-  <h1 class="page-h1">Valide cada tela antes de <strong>ir para produção.</strong></h1>
-  <p class="page-sub">Acesse cada escopo, navegue pela simulação e registre sua aprovação. Histórico centralizado neste portal.</p>
 </div>
 
-<!-- MAIN -->
-<main class="main">
+<!-- ══ PORTAL SCREEN ══ -->
+<div id="screen-portal">
+  <nav class="nav">
+    <div class="nav-left">
+      <a class="logo" href="#">
+        <div class="logo-icon">&lt;/&gt;</div>
+        <div class="logo-name">Omni<em>Promo</em></div>
+      </a>
+      <div class="nav-sep"></div>
+      <div class="nav-client">Innovation Brindes</div>
+    </div>
+    <div class="nav-right">
+      <div class="nav-user">
+        <div class="nav-user-avatar" id="nav-avatar"></div>
+        <div class="nav-user-name" id="nav-username"></div>
+      </div>
+      <button class="nav-logout" onclick="logout()">Sair</button>
+    </div>
+  </nav>
 
-  <!-- STATS -->
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-lbl">Total de Escopos</div>
-      <div class="stat-row"><span class="stat-val sv-all">5</span><span class="stat-icon">📁</span></div>
-    </div>
-    <div class="stat">
-      <div class="stat-lbl">Aprovados</div>
-      <div class="stat-row"><span class="stat-val sv-approved">0</span><span class="stat-icon">✅</span></div>
-    </div>
-    <div class="stat">
-      <div class="stat-lbl">Em Revisão</div>
-      <div class="stat-row"><span class="stat-val sv-review">5</span><span class="stat-icon">⏳</span></div>
-    </div>
-    <div class="stat">
-      <div class="stat-lbl">Em Desenvolvimento</div>
-      <div class="stat-row"><span class="stat-val sv-dev">0</span><span class="stat-icon">🔧</span></div>
-    </div>
+  <div class="page-head">
+    <div class="ph-kicker">Portal de Escopos &amp; Aprovações</div>
+    <h1 class="ph-h1">O que precisa da sua <strong>aprovação?</strong></h1>
+    <p class="ph-sub">Acesse cada escopo, navegue pela simulação e registre sua decisão abaixo.</p>
   </div>
 
-  <!-- PIPELINE -->
-  <div class="pipeline">
-    <div class="pipe-head">
-      <div class="pipe-title">Pipeline atual</div>
-    </div>
-    <div class="pipe-track">
-      <div class="pipe-stage">
-        <div class="pipe-dot pd-dev">0</div>
-        <div class="pipe-stage-name">Em Desenvolvimento</div>
-        <div class="pipe-stage-count pc-dev">—</div>
-      </div>
-      <div class="pipe-stage">
-        <div class="pipe-dot pd-review">5</div>
-        <div class="pipe-stage-name">Aguardando Revisão</div>
-        <div class="pipe-stage-count pc-review">5 escopos</div>
-      </div>
-      <div class="pipe-stage">
-        <div class="pipe-dot pd-app">0</div>
-        <div class="pipe-stage-name">Aprovados</div>
-        <div class="pipe-stage-count pc-app">—</div>
-      </div>
-    </div>
-  </div>
+  <main class="main">
 
-  <!-- TOOLBAR -->
-  <div class="toolbar">
-    <div class="filter-tabs">
-      <button class="ftab on" data-filter="all">Todos (5)</button>
-      <button class="ftab" data-filter="approved">✓ Aprovados</button>
-      <button class="ftab" data-filter="review">⏳ Em Revisão</button>
-      <button class="ftab" data-filter="dev">🔧 Em Desenvolvimento</button>
-    </div>
-    <div class="toolbar-hint">Clique em "Ver escopo" para abrir a simulação</div>
-  </div>
-
-  <!-- GRID -->
-  <div class="grid" id="grid">
-
-    <div class="card" data-status="review">
-      <div class="thumb">
-        <div class="thumb-top">
-          <span class="badge b-review">Em Revisão</span>
-          <span class="ver-tag">v6</span>
+    <!-- SUMMARY -->
+    <div class="summary">
+      <div class="sum-card s-review">
+        <div class="sum-icon">⏳</div>
+        <div class="sum-right">
+          <div class="sum-val" id="count-review">0</div>
+          <div class="sum-lbl">Aguardando aprovação</div>
         </div>
-        <div class="thumb-icon">📊</div>
-        <div class="thumb-num">01</div>
       </div>
-      <div class="card-body">
-        <div class="card-name">Painel OmniPromo</div>
-        <div class="card-desc">Controle de horas por cliente. Visão geral de alocação, lançamentos e relatórios de produtividade.</div>
-      </div>
-      <div class="card-foot">
-        <span class="badge b-review">Em Revisão</span>
-        <a class="btn-ver" href="escopos/painel_omnipromo_v6.html" target="_blank">
-          Ver escopo
-          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 10L10 2M10 2H5.5M10 2v4.5"/></svg>
-        </a>
-      </div>
-    </div>
-
-    <div class="card" data-status="review">
-      <div class="thumb">
-        <div class="thumb-top">
-          <span class="badge b-review">Em Revisão</span>
-          <span class="ver-tag">v5</span>
+      <div class="sum-card s-approved">
+        <div class="sum-icon">✅</div>
+        <div class="sum-right">
+          <div class="sum-val" id="count-approved">0</div>
+          <div class="sum-lbl">Aprovados</div>
         </div>
-        <div class="thumb-icon">🧾</div>
-        <div class="thumb-num">02</div>
       </div>
-      <div class="card-body">
-        <div class="card-name">Validação NFS-e — Maio/2026</div>
-        <div class="card-desc">Conferência e validação de notas fiscais de serviço emitidas no período de maio de 2026.</div>
-      </div>
-      <div class="card-foot">
-        <span class="badge b-review">Em Revisão</span>
-        <a class="btn-ver" href="escopos/nfse_validacao_maio26-v5.html" target="_blank">
-          Ver escopo
-          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 10L10 2M10 2H5.5M10 2v4.5"/></svg>
-        </a>
-      </div>
-    </div>
-
-    <div class="card" data-status="review">
-      <div class="thumb">
-        <div class="thumb-top">
-          <span class="badge b-review">Em Revisão</span>
-          <span class="ver-tag">v1</span>
+      <div class="sum-card s-cancelled">
+        <div class="sum-icon">🔁</div>
+        <div class="sum-right">
+          <div class="sum-val" id="count-cancelled">0</div>
+          <div class="sum-lbl">Ajuste solicitado</div>
         </div>
-        <div class="thumb-icon">🏭</div>
-        <div class="thumb-num">03</div>
-      </div>
-      <div class="card-body">
-        <div class="card-name">Enviar para Confecção</div>
-        <div class="card-desc">Fluxo de envio de pedidos aprovados para a linha de confecção, com controle de lotes e prazos.</div>
-      </div>
-      <div class="card-foot">
-        <span class="badge b-review">Em Revisão</span>
-        <a class="btn-ver" href="escopos/enviar_confeccao_1.html" target="_blank">
-          Ver escopo
-          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 10L10 2M10 2H5.5M10 2v4.5"/></svg>
-        </a>
       </div>
     </div>
 
-    <div class="card" data-status="review">
-      <div class="thumb">
-        <div class="thumb-top">
-          <span class="badge b-review">Em Revisão</span>
-          <span class="ver-tag">v7</span>
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="filter-tabs">
+        <button class="ftab on" data-filter="all">Todos</button>
+        <button class="ftab" data-filter="review">⏳ Aguardando</button>
+        <button class="ftab" data-filter="approved">✓ Aprovados</button>
+        <button class="ftab" data-filter="cancelled">🔁 Ajuste</button>
+      </div>
+      <div class="toolbar-hint">Clique em "Ver escopo" para abrir a simulação</div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="grid" id="grid"></div>
+
+    <!-- HISTORY -->
+    <div class="history">
+      <div class="history-head" onclick="toggleHistory()">
+        <div class="history-title">
+          📋 Histórico de ações
+          <span class="history-count" id="hist-count">0</span>
         </div>
-        <div class="thumb-icon">✅</div>
-        <div class="thumb-num">04</div>
+        <div class="history-toggle" id="hist-toggle">▾ Ver histórico</div>
       </div>
-      <div class="card-body">
-        <div class="card-name">Validador de Pedidos</div>
-        <div class="card-desc">Ferramenta de validação e conferência de pedidos antes da liberação para produção ou faturamento.</div>
-      </div>
-      <div class="card-foot">
-        <span class="badge b-review">Em Revisão</span>
-        <a class="btn-ver" href="escopos/validador-pedidos_7.html" target="_blank">
-          Ver escopo
-          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 10L10 2M10 2H5.5M10 2v4.5"/></svg>
-        </a>
+      <div class="history-body collapsed" id="hist-body">
+        <div id="hist-list"></div>
+        <button class="history-clear" onclick="clearHistory()">Limpar histórico</button>
       </div>
     </div>
 
-    <div class="card" data-status="review">
-      <div class="thumb">
-        <div class="thumb-top">
-          <span class="badge b-review">Em Revisão</span>
-          <span class="ver-tag">v2</span>
-        </div>
-        <div class="thumb-icon">📋</div>
-        <div class="thumb-num">05</div>
-      </div>
-      <div class="card-body">
-        <div class="card-name">Simulador Emissão NF — Adiamento</div>
-        <div class="card-desc">Simulação do fluxo de adiamento de notas fiscais, com validação de motivo e data de retorno.</div>
-      </div>
-      <div class="card-foot">
-        <span class="badge b-review">Em Revisão</span>
-        <a class="btn-ver" href="escopos/simulador_emissao_nf_adiamento_2_.html" target="_blank">
-          Ver escopo
-          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 10L10 2M10 2H5.5M10 2v4.5"/></svg>
-        </a>
-      </div>
-    </div>
+  </main>
 
-  </div>
-</main>
-
-<footer class="ftr">
-  <div class="ftr-l">© 2026 OmniPromo · Conectando ideias, integrando processos · Portal interno Innovation Brindes</div>
-  <div class="ftr-r"><a href="https://github.com/davidbrochini-web/simulacao-omnipromo" target="_blank">↗ Repositório</a></div>
-</footer>
+  <footer class="ftr">
+    <div class="ftr-l">© 2026 OmniPromo · Conectando ideias, integrando processos</div>
+    <div class="ftr-r"><a href="https://github.com/davidbrochini-web/simulacao-omnipromo" target="_blank">↗ Repositório</a></div>
+  </footer>
+</div>
 
 <script>
-  document.querySelectorAll('.ftab').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.ftab').forEach(b => b.classList.remove('on'));
-      btn.classList.add('on');
-      const f = btn.dataset.filter;
-      document.querySelectorAll('.card').forEach(c => {
-        c.classList.toggle('hidden', f !== 'all' && c.dataset.status !== f);
-      });
-    });
-  });
+const SCOPES_KEY  = 'op_scopes_inno';
+const HISTORY_KEY = 'op_history_inno';
+
+const DEFAULT_SCOPES = [
+  { id:1, num:'01', name:'Painel OmniPromo',                ver:'v6', icon:'📊', file:'escopos/painel_omnipromo_v6.html',                    desc:'Controle de horas por cliente. Visão geral de alocação, lançamentos e relatórios de produtividade.', status:'review' },
+  { id:2, num:'02', name:'Validação NFS-e — Maio/2026',     ver:'v5', icon:'🧾', file:'escopos/nfse_validacao_maio26-v5.html',                desc:'Conferência e validação de notas fiscais de serviço emitidas no período de maio de 2026.',            status:'review' },
+  { id:3, num:'03', name:'Enviar para Confecção',           ver:'v1', icon:'🏭', file:'escopos/enviar_confeccao_1.html',                      desc:'Fluxo de envio de pedidos aprovados para a linha de confecção, com controle de lotes e prazos.',     status:'review' },
+  { id:4, num:'04', name:'Validador de Pedidos',            ver:'v7', icon:'✅', file:'escopos/validador-pedidos_7.html',                     desc:'Ferramenta de validação e conferência de pedidos antes da liberação para produção ou faturamento.',  status:'review' },
+  { id:5, num:'05', name:'Simulador Emissão NF — Adiamento',ver:'v2', icon:'📋', file:'escopos/simulador_emissao_nf_adiamento_2_.html',       desc:'Simulação do fluxo de adiamento de notas fiscais, com validação de motivo e data de retorno.',       status:'review' },
+];
+
+let scopes      = loadScopes();
+let history     = loadHistory();
+let currentUser = sessionStorage.getItem('op_user') || '';
+let filter      = 'all';
+let histOpen    = false;
+
+function loadScopes()  { try { return JSON.parse(localStorage.getItem(SCOPES_KEY))  || DEFAULT_SCOPES; } catch(e) { return DEFAULT_SCOPES; } }
+function loadHistory() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }            catch(e) { return []; } }
+function saveScopes()  { localStorage.setItem(SCOPES_KEY,  JSON.stringify(scopes)); }
+function saveHistory() { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); }
+
+function addHistory(action, scopeName, icon) {
+  history.unshift({ action, icon, scope: scopeName, person: currentUser, ts: new Date().toISOString() });
+  saveHistory();
+}
+
+function login() {
+  const name = document.getElementById('inp-name').value.trim();
+  if (!name) { document.getElementById('inp-name').focus(); return; }
+  currentUser = name;
+  sessionStorage.setItem('op_user', name);
+  showPortal();
+}
+document.getElementById('inp-name').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+
+function logout() {
+  sessionStorage.removeItem('op_user');
+  currentUser = '';
+  document.getElementById('screen-portal').style.display = 'none';
+  document.getElementById('screen-entry').style.display = 'flex';
+  document.getElementById('inp-name').value = '';
+}
+
+function showPortal() {
+  document.getElementById('screen-entry').style.display = 'none';
+  document.getElementById('screen-portal').style.display = 'block';
+  const initials = currentUser.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('nav-avatar').textContent = initials;
+  document.getElementById('nav-username').textContent = currentUser;
+  render();
+}
+
+function setFilter(f) {
+  filter = f;
+  document.querySelectorAll('.ftab').forEach(b => b.classList.toggle('on', b.dataset.filter === f));
+  renderCards();
+}
+
+function approve(id) {
+  const s = scopes.find(x => x.id === id);
+  s.status = 'approved'; saveScopes();
+  addHistory('Aprovado', s.name, '✅');
+  render();
+}
+function requestAdjust(id) {
+  const s = scopes.find(x => x.id === id);
+  s.status = 'cancelled'; saveScopes();
+  addHistory('Ajuste solicitado', s.name, '🔁');
+  render();
+}
+function undo(id) {
+  const s = scopes.find(x => x.id === id);
+  s.status = 'review'; saveScopes();
+  addHistory('Status revertido', s.name, '↩️');
+  render();
+}
+
+function render() { renderSummary(); renderCards(); renderHistory(); }
+
+function renderSummary() {
+  document.getElementById('count-review').textContent    = scopes.filter(s=>s.status==='review').length;
+  document.getElementById('count-approved').textContent  = scopes.filter(s=>s.status==='approved').length;
+  document.getElementById('count-cancelled').textContent = scopes.filter(s=>s.status==='cancelled').length;
+}
+
+function renderCards() {
+  const grid = document.getElementById('grid');
+  const visible = filter === 'all' ? scopes : scopes.filter(s => s.status === filter);
+
+  const badgeMap = {
+    review:    ['b-review',   'Em Revisão'],
+    approved:  ['b-approved', 'Aprovado'],
+    cancelled: ['b-cancelled','Ajuste Solicitado'],
+  };
+
+  grid.innerHTML = visible.map(s => {
+    const [bClass, bLabel] = badgeMap[s.status] || badgeMap.review;
+    const actions = s.status === 'review'
+      ? `<button class="btn btn-approve" onclick="approve(${s.id})">✓ Aprovar</button>
+         <button class="btn btn-adjust"  onclick="requestAdjust(${s.id})">↩ Solicitar ajuste</button>`
+      : `<button class="btn btn-undo" onclick="undo(${s.id})">↩ Reverter</button>`;
+    return `
+    <div class="card">
+      <div class="thumb">
+        <div class="thumb-top">
+          <span class="badge ${bClass}">${bLabel}</span>
+          <span class="ver-tag">${s.ver}</span>
+        </div>
+        <div class="thumb-icon">${s.icon}</div>
+        <div class="thumb-num">${s.num}</div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${s.name}</div>
+        <div class="card-desc">${s.desc}</div>
+      </div>
+      <div class="card-foot">
+        <div class="card-foot-top">
+          <span class="badge ${bClass}">${bLabel}</span>
+          <a class="btn btn-view" href="${s.file}" target="_blank">
+            Ver escopo
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 10L10 2M10 2H5.5M10 2v4.5"/></svg>
+          </a>
+        </div>
+        <div class="card-actions">${actions}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  if (visible.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--text-muted);font-size:13px;">Nenhum escopo nesta categoria.</div>`;
+  }
+}
+
+function renderHistory() {
+  const list = document.getElementById('hist-list');
+  document.getElementById('hist-count').textContent = history.length;
+  if (history.length === 0) {
+    list.innerHTML = `<div class="history-empty">Nenhuma ação registrada ainda.<br>Aprove ou solicite ajuste em um escopo para ver o histórico aqui.</div>`;
+    return;
+  }
+  const iconMap = { 'Aprovado':'✅', 'Ajuste solicitado':'🔁', 'Status revertido':'↩️' };
+  const classMap = { 'Aprovado':'hi-approved', 'Ajuste solicitado':'hi-adjustment', 'Status revertido':'hi-reverted' };
+  list.innerHTML = history.map(h => {
+    const dt = new Date(h.ts);
+    const date = dt.toLocaleDateString('pt-BR');
+    const time = dt.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+    return `
+    <div class="history-item">
+      <div class="hi-icon ${classMap[h.action]||'hi-reverted'}">${h.icon || iconMap[h.action] || '•'}</div>
+      <div class="hi-body">
+        <div class="hi-action">${h.action}</div>
+        <div class="hi-scope">${h.scope}</div>
+      </div>
+      <div class="hi-right">
+        <div class="hi-person">${h.person}</div>
+        <div class="hi-time">${date} às ${time}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHistory() {
+  histOpen = !histOpen;
+  document.getElementById('hist-body').classList.toggle('collapsed', !histOpen);
+  document.getElementById('hist-toggle').textContent = histOpen ? '▴ Fechar' : '▾ Ver histórico';
+}
+
+function clearHistory() {
+  if (!confirm('Limpar todo o histórico?')) return;
+  history = []; saveHistory(); renderHistory();
+}
+
+document.querySelectorAll('.ftab').forEach(b => {
+  b.addEventListener('click', () => setFilter(b.dataset.filter));
+});
+
+// Init
+if (currentUser) showPortal();
 </script>
 </body>
 </html>
