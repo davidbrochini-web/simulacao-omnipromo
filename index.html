@@ -210,18 +210,8 @@
     .b-approved  { background: var(--approved-bg);  color: var(--approved-tx); }
     .b-cancelled { background: var(--cancelled-bg); color: var(--cancelled-tx); }
 
-    /* Card body */
-    .card-body { padding: 14px 16px 0; flex: 1; }
-    .card-name { font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-    .card-desc { font-size: 12px; color: var(--text-sec); line-height: 1.5; }
-
-    /* Card foot */
-    .card-foot { padding: 12px 16px 14px; border-top: 1px solid var(--border); margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
-    .card-foot-top { display: flex; align-items: center; justify-content: space-between; }
-    .card-actions { display: flex; gap: 6px; }
-
-    .btn { display: inline-flex; align-items: center; gap: 4px; padding: 5px 11px; border-radius: 6px; font-family: 'Inter'; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all .12s; text-decoration: none; border: 1px solid transparent; }
-    .btn-view  { background: var(--green-dim); border-color: var(--green-bdr); color: var(--approved-tx); }
+    .btn { display: inline-flex; align-items: center; gap: 4px; padding: 5px 11px; border-radius: 6px; font-family: 'Inter'; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all .12s; text-decoration: none; border: 1px solid transparent; white-space: nowrap; }
+    .btn-view    { background: var(--green-dim); border-color: var(--green-bdr); color: var(--approved-tx); }
     .btn-view:hover { background: var(--green); border-color: var(--green); color: #fff; }
     .btn-approve { background: #D1FAE5; border-color: rgba(16,185,129,.3); color: #065F46; }
     .btn-approve:hover { background: #10B981; border-color: #10B981; color: #fff; }
@@ -230,6 +220,41 @@
     .btn-undo    { background: #F3F4F6; border-color: var(--border); color: var(--text-sec); }
     .btn-undo:hover { background: #E5E7EB; border-color: #D1D5DB; color: var(--text); }
     .btn svg { width: 11px; height: 11px; }
+
+    /* ── LISTA DE ESCOPOS ── */
+    .scope-list {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; box-shadow: var(--shadow); overflow: hidden;
+    }
+    .scope-list-head {
+      display: grid;
+      grid-template-columns: 32px 1fr 80px 140px 260px;
+      gap: 12px; align-items: center;
+      padding: 10px 20px;
+      background: #F8FAFC; border-bottom: 2px solid var(--border);
+      font-size: 10px; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .scope-row {
+      display: grid;
+      grid-template-columns: 32px 1fr 80px 140px 260px;
+      gap: 12px; align-items: center;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+    .scope-row:last-child { border-bottom: none; }
+    .scope-row:hover { background: #FAFBFC; }
+    .scope-row.hidden { display: none !important; }
+
+    .row-num { font-size: 11px; font-weight: 700; color: var(--text-muted); }
+    .row-info {}
+    .row-name { font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .row-desc { font-size: 11.5px; color: var(--text-muted); line-height: 1.4; }
+    .row-ver { }
+    .ver-tag { display: inline-block; font-size: 11px; font-weight: 600; color: var(--text-muted); background: #F3F4F6; padding: 3px 9px; border-radius: 4px; border: 1px solid var(--border); }
+    .row-status {}
+    .row-actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
 
     /* ── HISTORY ── */
     .history { margin-top: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; }
@@ -381,8 +406,17 @@
       <div class="toolbar-hint">Clique em "Ver escopo" para abrir a simulação</div>
     </div>
 
-    <!-- CARDS -->
-    <div class="grid" id="grid"></div>
+    <!-- LISTA -->
+    <div class="scope-list">
+      <div class="scope-list-head">
+        <div></div>
+        <div>Escopo</div>
+        <div>Versão</div>
+        <div>Status</div>
+        <div style="text-align:right">Ações</div>
+      </div>
+      <div id="grid"></div>
+    </div>
 
     <!-- HISTORY -->
     <div class="history">
@@ -511,34 +545,26 @@ function renderCards() {
          <button class="btn btn-adjust"  onclick="requestAdjust(${s.id})">↩ Solicitar ajuste</button>`
       : `<button class="btn btn-undo" onclick="undo(${s.id})">↩ Reverter</button>`;
     return `
-    <div class="card">
-      <div class="thumb">
-        <div class="thumb-top">
-          <span class="badge ${bClass}">${bLabel}</span>
-          <span class="ver-tag">${s.ver}</span>
-        </div>
-        <div class="thumb-icon">${s.icon}</div>
-        <div class="thumb-num">${s.num}</div>
+    <div class="scope-row" data-status="${s.status}">
+      <div class="row-num">${s.num}</div>
+      <div class="row-info">
+        <div class="row-name">${s.icon} ${s.name}</div>
+        <div class="row-desc">${s.desc}</div>
       </div>
-      <div class="card-body">
-        <div class="card-name">${s.name}</div>
-        <div class="card-desc">${s.desc}</div>
-      </div>
-      <div class="card-foot">
-        <div class="card-foot-top">
-          <span class="badge ${bClass}">${bLabel}</span>
-          <a class="btn btn-view" href="${s.file}" target="_blank">
-            Ver escopo
-            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 10L10 2M10 2H5.5M10 2v4.5"/></svg>
-          </a>
-        </div>
-        <div class="card-actions">${actions}</div>
+      <div class="row-ver"><span class="ver-tag">${s.ver}</span></div>
+      <div class="row-status"><span class="badge ${bClass}">${bLabel}</span></div>
+      <div class="row-actions">
+        <a class="btn btn-view" href="${s.file}" target="_blank">
+          Ver escopo
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 10L10 2M10 2H5.5M10 2v4.5"/></svg>
+        </a>
+        ${actions}
       </div>
     </div>`;
   }).join('');
 
   if (visible.length === 0) {
-    grid.innerHTML = `<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--text-muted);font-size:13px;">Nenhum escopo nesta categoria.</div>`;
+    grid.innerHTML = `<div style="padding:32px;text-align:center;color:var(--text-muted);font-size:13px;">Nenhum escopo nesta categoria.</div>`;
   }
 }
 
