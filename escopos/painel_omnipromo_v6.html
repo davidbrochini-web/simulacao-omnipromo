@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Horas — Clientes</title>
+<style>
+  :root{
+    --nav-bg:#ffffff;
+    --nav-border:#E3E6EA;
+    --nav-text:#3A4350;
+    --page-bg:#EEF1F4;
+    --card-bg:#ffffff;
+    --card-border:#E0E4E9;
+    --banner-from:#163A4D;
+    --banner-to:#1E6E84;
+    --blue:#2E86DE;
+    --green:#27AE60;
+    --green-bg:#DEF5E6;
+    --orange:#E8930C;
+    --orange-bg:#FCEFD9;
+    --red:#D44333;
+    --red-bg:#FBE5E1;
+    --gray:#7C8794;
+    --gray-bg:#EEF0F2;
+    --purple:#7F56D9;
+    --table-head:#1C3D4F;
+    --text-main:#2B323C;
+    --text-soft:#6B7480;
+    font-size:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--page-bg); color:var(--text-main);
+    font-family:Arial,Helvetica,"Segoe UI",sans-serif;
+  }
+  a{ color:var(--blue); text-decoration:none; cursor:pointer; }
+
+  /* ===================== TOP NAV ===================== */
+  .topnav{
+    background:var(--nav-bg); border-bottom:1px solid var(--nav-border);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 18px; height:52px; position:relative; z-index:30;
+  }
+  .nav-menu{ display:flex; align-items:center; gap:22px; height:100%; }
+  .nav-item{
+    font-size:.86rem; color:var(--nav-text); cursor:pointer; display:flex; align-items:center; gap:4px;
+    height:100%; position:relative; font-weight:500;
+  }
+  .nav-item .chev{ font-size:.6rem; color:var(--text-soft); }
+  .nav-item.highlight{ color:var(--blue); font-weight:700; }
+  .nav-dropdown{
+    position:absolute; top:46px; left:0; background:#fff; border:1px solid var(--nav-border);
+    border-radius:6px; box-shadow:0 8px 22px rgba(20,30,40,.15); min-width:220px; display:none;
+    padding:6px 0; z-index:40;
+  }
+  .nav-item:hover .nav-dropdown{ display:block; }
+  .nav-dropdown a{
+    display:block; padding:9px 16px; font-size:.84rem; color:var(--text-main); font-weight:400;
+  }
+  .nav-dropdown a:hover{ background:#F3F6F9; }
+  .nav-dropdown a.active-feature{ color:var(--blue); font-weight:700; }
+  .nav-right{ display:flex; align-items:center; gap:18px; }
+  .nav-icon{
+    width:32px;height:32px;border-radius:50%;background:#F1F3F5;display:flex;align-items:center;justify-content:center;
+    font-size:.95rem; color:var(--text-soft); cursor:pointer;
+  }
+  .nav-call{ display:flex; align-items:center; gap:8px; font-size:.78rem; color:var(--text-main); cursor:pointer; }
+  .nav-call .dot{ width:30px;height:30px;border-radius:50%;background:#FBE9E7;color:#D44333;display:flex;align-items:center;justify-content:center; }
+  .nav-user{ display:flex; align-items:center; gap:8px; cursor:pointer; }
+  .nav-user .av{ width:30px;height:30px;border-radius:50%;background:#E4E8EC;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;color:var(--text-soft); }
+  .nav-user .meta{ font-size:.72rem; color:var(--text-soft); line-height:1.2; }
+
+  /* ===================== BANNER ===================== */
+  .banner{
+    background:linear-gradient(90deg,var(--banner-from),var(--banner-to));
+    color:#fff; padding:16px 28px; display:flex; align-items:center; justify-content:space-between;
+  }
+  .banner-title{ font-size:1.05rem; font-weight:700; letter-spacing:.02em; }
+  .banner-sub{ font-size:.78rem; opacity:.85; margin-top:2px; }
+  .banner-back{ font-size:.8rem; color:#D9ECF1; margin-bottom:4px; display:inline-block; }
+  .banner-back:hover{ text-decoration:underline; }
+  .banner-actions{ display:flex; gap:10px; }
+  .btn-banner{
+    background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.4); color:#fff;
+    padding:8px 14px; border-radius:6px; font-size:.78rem; font-weight:600; cursor:pointer;
+  }
+  .btn-banner:hover{ background:rgba(255,255,255,.24); }
+
+  /* ===================== CONTENT ===================== */
+  .content{ padding:22px 28px 60px; }
+
+  /* client list cards */
+  .client-grid{ display:flex; flex-wrap:wrap; gap:18px; }
+  .client-panel{
+    background:var(--card-bg); border:1px solid var(--card-border); border-radius:8px;
+    width:330px; padding:16px 18px 18px; cursor:pointer; transition:box-shadow .15s, border-color .15s;
+  }
+  .client-panel:hover{ box-shadow:0 6px 18px rgba(20,40,60,.1); border-color:#C7D3DC; }
+  .panel-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+  .panel-head-left{ display:flex; align-items:center; gap:8px; }
+  .panel-icon{ font-size:1.1rem; }
+  .panel-title{ font-size:.96rem; font-weight:700; }
+  .panel-cnpj{ font-size:.72rem; color:var(--text-soft); margin:0 0 14px 26px; }
+  .status-dot{ width:8px; height:8px; border-radius:50%; }
+  .status-dot.ativo{ background:var(--green); }
+  .status-dot.inativo{ background:var(--gray); }
+  .panel-stats{ display:flex; justify-content:space-between; border-top:1px solid #EEF0F2; padding-top:14px; }
+  .stat-circle-wrap{ text-align:center; flex:1; }
+  .stat-circle{
+    width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-weight:700; font-size:.86rem; margin:0 auto 6px; color:#fff;
+  }
+  .stat-circle.c-blue{ background:var(--blue); }
+  .stat-circle.c-green{ background:var(--green); }
+  .stat-circle.c-red{ background:var(--red); }
+  .stat-circle.c-orange{ background:var(--orange); }
+  .stat-circle-label{ font-size:.66rem; color:var(--text-soft); text-transform:uppercase; letter-spacing:.03em; }
+
+  .btn-new{
+    width:330px; border:1.5px dashed #C7D0D9; background:none; color:var(--text-soft);
+    border-radius:8px; padding:16px; font-size:.84rem; cursor:pointer; font-weight:600;
+  }
+  .btn-new:hover{ background:#fff; }
+
+  /* filter card */
+  .filters-card{
+    background:var(--card-bg); border:1px solid var(--card-border); border-radius:8px;
+    padding:16px 20px; margin-bottom:18px;
+  }
+  .filters-label{ font-size:.72rem; font-weight:700; color:var(--text-soft); text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px; }
+  .filters-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .pill-btn{
+    background:#fff; border:1px solid #D7DCE2; color:var(--text-main); padding:7px 14px;
+    border-radius:20px; font-size:.78rem; cursor:pointer; font-weight:600;
+  }
+  .pill-btn:hover{ border-color:var(--blue); color:var(--blue); }
+  .pill-btn.active{ background:var(--table-head); color:#fff; border-color:var(--table-head); }
+  select.month-select{
+    padding:8px 12px; border:1px solid #D7DCE2; border-radius:6px; font-size:.82rem; background:#fff; color:var(--text-main);
+  }
+  .btn-primary{
+    background:var(--blue); color:#fff; border:none; padding:8px 16px; border-radius:6px;
+    font-size:.8rem; font-weight:700; cursor:pointer;
+  }
+  .btn-primary:hover{ background:#2670bd; }
+  .btn-outline{
+    background:#fff; border:1px solid #D7DCE2; color:var(--text-main); padding:8px 16px; border-radius:6px;
+    font-size:.8rem; font-weight:600; cursor:pointer;
+  }
+  .btn-outline:hover{ border-color:#AEB7C2; }
+  .filters-hint{ font-size:.72rem; color:var(--text-soft); margin-top:10px; font-style:italic; }
+
+  /* stat cards row */
+  .stats-row{ display:flex; gap:14px; margin-bottom:20px; flex-wrap:wrap; }
+  .stat-card{
+    flex:1; min-width:170px; background:var(--card-bg); border:1px solid var(--card-border);
+    border-left:4px solid var(--gray); border-radius:6px; padding:14px 16px;
+  }
+  .stat-card.b-blue{ border-left-color:var(--blue); }
+  .stat-card.b-green{ border-left-color:var(--green); }
+  .stat-card.b-orange{ border-left-color:var(--orange); }
+  .stat-card.b-red{ border-left-color:var(--red); }
+  .stat-card.b-gray{ border-left-color:var(--gray); }
+  .stat-num{ font-size:1.5rem; font-weight:700; }
+  .stat-num.t-blue{ color:var(--blue); }
+  .stat-num.t-green{ color:var(--green); }
+  .stat-num.t-orange{ color:var(--orange); }
+  .stat-num.t-red{ color:var(--red); }
+  .stat-num.t-gray{ color:var(--gray); }
+  .stat-label{ font-size:.72rem; color:var(--text-soft); text-transform:uppercase; letter-spacing:.03em; margin-top:4px; }
+  .stat-sub{ font-size:.7rem; color:var(--text-soft); margin-top:2px; }
+
+  /* tabs (section pills like the real system) */
+  .section-tabs{ display:flex; gap:8px; margin-bottom:16px; }
+  .section-tab{
+    padding:9px 18px; border-radius:20px; font-size:.8rem; font-weight:700; cursor:pointer;
+    background:#fff; border:1px solid #D7DCE2; color:var(--text-main);
+  }
+  .section-tab.active{ background:var(--green); color:#fff; border-color:var(--green); }
+
+  /* table card */
+  .table-card{
+    background:var(--card-bg); border:1px solid var(--card-border); border-radius:8px; overflow:hidden;
+  }
+  .table-card-head{
+    display:flex; justify-content:space-between; align-items:center; padding:14px 18px;
+    border-bottom:1px solid var(--card-border);
+  }
+  .table-card-head h3{ font-size:.92rem; margin:0; }
+  table{ width:100%; border-collapse:collapse; font-size:.82rem; }
+  thead th{
+    background:var(--table-head); color:#fff; text-align:left; padding:10px 14px; font-size:.7rem;
+    text-transform:uppercase; letter-spacing:.04em; font-weight:700;
+  }
+  tbody td{ padding:11px 14px; border-bottom:1px solid #EEF0F2; }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background:#F8FAFB; }
+  .right{ text-align:right; }
+  .num{ font-weight:600; }
+
+  .pill{
+    font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em;
+    padding:4px 10px; border-radius:20px; display:inline-block;
+  }
+  .pill-green{ background:var(--green-bg); color:var(--green); }
+  .pill-orange{ background:var(--orange-bg); color:var(--orange); }
+  .pill-red{ background:var(--red-bg); color:var(--red); }
+  .pill-gray{ background:var(--gray-bg); color:var(--gray); }
+  .pill-blue{ background:#E4EFFC; color:var(--blue); }
+  .pill-purple{ background:#EFE7FB; color:var(--purple); }
+
+  /* sub-tabs dentro de uma aba (ex: Horas de Escopo / Horas de Suporte) */
+  .subtabs{ display:flex; gap:6px; margin-bottom:14px; }
+  .subtab{
+    padding:7px 16px; border-radius:6px; font-size:.78rem; font-weight:700; cursor:pointer;
+    background:#F1F3F5; color:var(--text-soft); border:1px solid transparent;
+  }
+  .subtab.active{ background:#fff; color:var(--text-main); border-color:#D7DCE2; }
+  .subtab .count{ font-weight:400; opacity:.75; margin-left:4px; }
+
+  .mini-progress{ background:#EAEDF0; border-radius:20px; height:6px; width:90px; overflow:hidden; }
+  .mini-progress-fill{ height:100%; background:var(--blue); }
+  .mini-progress-fill.over{ background:var(--red); }
+
+  .empty-row{ padding:36px 0; text-align:center; color:var(--text-soft); font-size:.84rem; }
+
+  .action-link{ font-size:.78rem; font-weight:600; }
+  .action-link.muted{ color:var(--text-soft); font-weight:400; }
+
+  /* modal + toast (reused) */
+  .overlay{ position:fixed; inset:0; background:rgba(20,30,40,.45); display:none; align-items:center; justify-content:center; z-index:60; }
+  .overlay.show{ display:flex; }
+  .modal{ background:#fff; border-radius:8px; padding:24px 26px; width:400px; max-width:92vw; box-shadow:0 18px 45px rgba(0,0,0,.25); }
+  .modal h3{ margin:0 0 4px; font-size:1rem; }
+  .modal-sub{ font-size:.76rem; color:var(--text-soft); margin-bottom:16px; }
+  .field{ margin-bottom:13px; }
+  .field label{ display:block; font-size:.74rem; font-weight:700; color:var(--text-soft); margin-bottom:5px; }
+  .field select, .field input{ width:100%; padding:8px 10px; border:1px solid #D7DCE2; border-radius:6px; font-size:.82rem; font-family:inherit; }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
+  .hint-box{ background:var(--orange-bg); color:var(--orange); border-radius:6px; padding:8px 10px; font-size:.74rem; margin-top:2px; }
+  .toast{
+    position:fixed; bottom:22px; right:22px; background:var(--table-head); color:#fff; padding:12px 18px;
+    border-radius:6px; font-size:.82rem; opacity:0; transform:translateY(8px); transition:all .25s; z-index:70;
+  }
+  .toast.show{ opacity:1; transform:translateY(0); }
+
+  /* ---------- barra de ação Horas de Suporte ---------- */
+  .hours-actionbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
+  .month-status-badge{ font-size:.78rem; font-weight:700; padding:6px 12px; border-radius:6px; display:inline-flex; align-items:center; gap:6px; }
+  .month-status-badge.open{ background:var(--green-bg); color:var(--green); }
+  .month-status-badge.closed{ background:var(--gray-bg); color:var(--gray); }
+  .month-status-badge .dot2{ width:7px; height:7px; border-radius:50%; background:currentColor; }
+  .btn-danger-text{ background:none; border:1px solid #E9C8C2; color:var(--red); padding:8px 16px; border-radius:6px; font-size:.8rem; font-weight:600; cursor:pointer; }
+  .btn-danger-text:hover{ background:var(--red-bg); }
+  button:disabled{ opacity:.5; cursor:not-allowed; }
+
+  /* ---------- página de relatório (imprimível) ---------- */
+  .report-toolbar{
+    display:flex; justify-content:space-between; align-items:center; padding:14px 28px;
+    background:#fff; border-bottom:1px solid var(--card-border); position:sticky; top:0; z-index:20;
+  }
+  .report-page{
+    max-width:760px; margin:28px auto 60px; background:#fff; border:1px solid var(--card-border);
+    border-radius:8px; padding:40px 48px; box-shadow:0 4px 16px rgba(20,30,40,.06);
+  }
+  .report-brand{ font-size:.74rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-soft); font-weight:700; }
+  .report-title{ font-family:Arial,sans-serif; font-size:1.4rem; font-weight:700; margin:4px 0 18px; color:var(--text-main); }
+  .report-meta-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 24px; margin-bottom:24px; font-size:.84rem; }
+  .report-meta-grid .label{ color:var(--text-soft); font-size:.7rem; text-transform:uppercase; letter-spacing:.04em; }
+  .report-meta-grid .value{ font-weight:700; margin-top:2px; }
+  .report-summary{ display:flex; gap:14px; margin-bottom:26px; }
+  .report-summary .box{ flex:1; border:1px solid var(--card-border); border-radius:6px; padding:14px; text-align:center; }
+  .report-summary .box .n{ font-size:1.4rem; font-weight:700; color:var(--table-head); }
+  .report-summary .box .l{ font-size:.68rem; color:var(--text-soft); text-transform:uppercase; letter-spacing:.04em; margin-top:4px; }
+  .report-page table{ font-size:.78rem; }
+  .report-page thead th{ background:#F1F3F5; color:var(--text-main); }
+  .report-total-row td{ font-weight:700; border-top:2px solid var(--text-main); }
+  .report-approval{ margin-top:46px; padding-top:20px; border-top:1px dashed #D7DCE2; }
+  .report-approval .title{ font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text-soft); margin-bottom:18px; }
+  .sign-grid{ display:grid; grid-template-columns:1fr 1fr; gap:28px 24px; }
+  .sign-line{ border-bottom:1px solid #B9C0C9; padding-bottom:6px; margin-bottom:4px; min-height:22px; }
+  .sign-cap{ font-size:.7rem; color:var(--text-soft); }
+  .report-footer-note{ margin-top:30px; font-size:.7rem; color:var(--text-soft); text-align:center; }
+
+  @media print{
+    .no-print{ display:none !important; }
+    body{ background:#fff; }
+    .report-page{ box-shadow:none; border:none; margin:0; max-width:100%; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div class="overlay" id="overlay"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   DADOS SIMULADOS
+   ========================================================= */
+let state = {
+  view:'list',              // 'list' | 'detail' | 'report'
+  selectedClientId:null,
+  tab:'escopos',            // escopos | nfse | horas
+  hoursSubTab:'escopo',     // escopo | suporte
+  month:'2026-06',
+  reportMonth:null,
+  navOpen:null,
+  clients:[
+    {
+      id:'c1', name:'Innovation Brindes', cnpj:'12.345.678/0001-90', status:'ativo',
+      scopes:[
+        { id:'s1', title:'Filtro de Operação Configurável', status:'concluido', total_hours:66, total_value:16500,
+          phases:[
+            {id:'p1', name:'Fase 1 — Levantamento e modelagem', contracted_hours:26, value:6500, status:'concluido', start:'2026-03-02', due:'2026-03-20'},
+            {id:'p2', name:'Fase 2 — Implementação e testes', contracted_hours:40, value:10000, status:'concluido', start:'2026-03-21', due:'2026-04-15'},
+          ]},
+        { id:'s2', title:'Revisão do Modelo de Pedido de Compra', status:'em_andamento', total_hours:44, total_value:11000,
+          phases:[
+            {id:'p3', name:'Fase 1 — Diagnóstico do fluxo atual', contracted_hours:18, value:4500, status:'concluido', start:'2026-05-04', due:'2026-05-15'},
+            {id:'p4', name:'Fase 2 — Implementação das regras', contracted_hours:26, value:6500, status:'em_andamento', start:'2026-05-18', due:'2026-06-30'},
+          ]},
+        { id:'s3', title:'Classificação de Centros de Custo (HTML Standalone)', status:'concluido', total_hours:34, total_value:8500,
+          phases:[{id:'p5', name:'Fase única — Ferramenta completa', contracted_hours:34, value:8500, status:'concluido', start:'2026-04-20', due:'2026-05-10'}]},
+        { id:'s4', title:'Platform Setup / Onboarding', status:'em_andamento', total_hours:186, total_value:46500,
+          phases:[
+            {id:'p6', name:'Fase 1 — Estrutura base e módulos prioritários', contracted_hours:96, value:24000, status:'em_andamento', start:'2026-06-01', due:'2026-07-31'},
+            {id:'p7', name:'Fase 2 — Módulos complementares e go-live', contracted_hours:90, value:22500, status:'pendente', start:'2026-08-01', due:'2026-09-15'},
+          ]},
+        { id:'s9', title:'Integração com Marketplace', status:'aguardando_aprovacao', total_hours:50, total_value:12500,
+          phases:[{id:'p9', name:'Fase única — Integração completa', contracted_hours:50, value:12500, status:'pendente', start:'2026-07-01', due:'2026-08-15'}]},
+      ],
+      support_hours:[
+        {id:'sh0', chamado:'CH-0988', date:'2026-05-14', opened_time:'08:50', start_time:'09:00', end_time:'11:00', hours:2, desc:'Dúvida sobre regra de PIS/COFINS na ferramenta de validação', valor_hora:250, print_url:'print_CH-0988.png'},
+        {id:'sh1', chamado:'CH-1029', date:'2026-06-03', opened_time:'13:40', start_time:'14:00', end_time:'15:30', hours:1.5, desc:'Erro ao validar XML de NFS-e com caractere especial', valor_hora:250, print_url:'print_CH-1029.png'},
+        {id:'sh2', chamado:'CH-1041', date:'2026-06-10', opened_time:'09:50', start_time:'10:00', end_time:'12:00', hours:2, desc:'Usuário sem permissão de acesso à tela de cronograma', valor_hora:250, print_url:'print_CH-1041.png'},
+        {id:'sh3', chamado:'CH-1052', date:'2026-06-18', opened_time:'12:45', start_time:'13:00', end_time:'16:00', hours:3, desc:'Ajuste pontual no filtro de status do pedido', valor_hora:250, print_url:'print_CH-1052.png'},
+        {id:'sh4', chamado:'CH-1067', date:'2026-06-24', opened_time:'09:20', start_time:'09:30', end_time:'10:30', hours:1, desc:'Orientação de uso para novo operador', valor_hora:250, print_url:'print_CH-1067.png'},
+      ],
+      support_closures:{ '2026-05': {closed:true, closedAt:'2026-06-02'} },
+      hours:[
+        {id:'h1', phase_id:'p1', date:'2026-03-05', hours:8, desc:'Reunião de levantamento + mapeamento de regras'},
+        {id:'h2', phase_id:'p1', date:'2026-03-10', hours:10, desc:'Modelagem da estrutura de filtros'},
+        {id:'h3', phase_id:'p1', date:'2026-03-18', hours:8, desc:'Validação com usuário-chave'},
+        {id:'h4', phase_id:'p2', date:'2026-03-22', hours:16, desc:'Desenvolvimento da tela de configuração'},
+        {id:'h5', phase_id:'p2', date:'2026-04-02', hours:14, desc:'Integração com procedures Sankhya'},
+        {id:'h6', phase_id:'p2', date:'2026-04-12', hours:10, desc:'Testes e ajustes finais'},
+        {id:'h7', phase_id:'p3', date:'2026-05-06', hours:9, desc:'Mapeamento do fluxo de PO atual'},
+        {id:'h8', phase_id:'p3', date:'2026-05-13', hours:9, desc:'Workshop de validação de regras'},
+        {id:'h9', phase_id:'p4', date:'2026-05-20', hours:12, desc:'Implementação das novas condições'},
+        {id:'h10', phase_id:'p4', date:'2026-06-05', hours:10, desc:'Ajustes de escopo solicitados'},
+        {id:'h11', phase_id:'p5', date:'2026-04-22', hours:34, desc:'Desenvolvimento completo da ferramenta'},
+        {id:'h12', phase_id:'p6', date:'2026-06-03', hours:30, desc:'Setup de infraestrutura AWS'},
+        {id:'h13', phase_id:'p6', date:'2026-06-15', hours:28, desc:'Implementação módulos prioritários — parte 1'},
+        {id:'h14', phase_id:'p4', date:'2026-06-20', hours:6, desc:'Reunião de alinhamento com contabilidade'},
+      ],
+      invoices:[
+        {id:'i1', phase_id:'p1', numero:'1024', valor:6500, emissao:'2026-03-21', status:'paga', payments:[{valor:6500, data:'2026-03-25'}]},
+        {id:'i2', phase_id:'p2', numero:'1041', valor:10000, emissao:'2026-04-16', status:'paga', payments:[{valor:10000, data:'2026-04-22'}]},
+        {id:'i3', phase_id:'p3', numero:'1058', valor:4500, emissao:'2026-05-16', status:'paga', payments:[{valor:4500, data:'2026-05-20'}]},
+        {id:'i4', phase_id:'p4', numero:'1067', valor:3250, emissao:'2026-06-02', status:'emitida', payments:[]},
+        {id:'i5', phase_id:'p5', numero:'1052', valor:8500, emissao:'2026-05-11', status:'paga', payments:[{valor:8500, data:'2026-05-15'}]},
+        {id:'i6', phase_id:'p6', numero:'1071', valor:12000, emissao:'2026-06-08', status:'atrasada', payments:[]},
+      ]
+    },
+    {
+      id:'c2', name:'Brindes Premium Ltda', cnpj:'98.765.432/0001-11', status:'ativo',
+      scopes:[{ id:'s5', title:'Portal de Acompanhamento de Pedidos', status:'em_andamento', total_hours:60, total_value:15000,
+        phases:[{id:'p8', name:'Fase 1 — MVP do portal', contracted_hours:60, value:15000, status:'em_andamento', start:'2026-06-10', due:'2026-07-20'}]}],
+      hours:[
+        {id:'h15', phase_id:'p8', date:'2026-06-12', hours:14, desc:'Estruturação do projeto'},
+        {id:'h16', phase_id:'p8', date:'2026-06-20', hours:12, desc:'Telas de login e listagem'},
+      ],
+      support_hours:[],
+      support_closures:{},
+      invoices:[{id:'i7', phase_id:'p8', numero:'1075', valor:7500, emissao:'2026-06-15', status:'emitida', payments:[]}]
+    },
+    {
+      id:'c3', name:'Distribuidora Vetor Norte', cnpj:'45.221.009/0001-77', status:'inativo',
+      scopes:[], hours:[], invoices:[], support_hours:[], support_closures:{}
+    }
+  ]
+};
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+function fmtBRL(v){ return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}); }
+function fmtDate(d){ if(!d) return '—'; const [y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; }
+function monthLabel(ym){
+  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const [y,m]=ym.split('-'); return `${meses[parseInt(m)-1]}/${y}`;
+}
+function getClient(id){ return state.clients.find(c=>c.id===id); }
+function getAllPhases(client){ return client.scopes.flatMap(s=>s.phases.map(p=>({...p, scope_title:s.title, scope_id:s.id}))); }
+function consumedHours(client, phaseId){ return client.hours.filter(h=>h.phase_id===phaseId).reduce((a,h)=>a+h.hours,0); }
+function availableMonths(client){
+  const set = new Set();
+  client.hours.forEach(h=>set.add(h.date.slice(0,7)));
+  (client.support_hours||[]).forEach(h=>set.add(h.date.slice(0,7)));
+  client.invoices.forEach(i=>set.add(i.emissao.slice(0,7)));
+  if(set.size===0) set.add(state.month);
+  return Array.from(set).sort().reverse();
+}
+function statusLabel(s){
+  return {aprovado:'Aprovado', em_andamento:'Em andamento', concluido:'Concluído', pendente:'Pendente',
+          aguardando_aprovacao:'Aguardando aprovação',
+          emitida:'Emitida', paga:'Paga', atrasada:'Atrasada'}[s]||s;
+}
+function pillClass(s){
+  return {aprovado:'pill-blue', em_andamento:'pill-orange', concluido:'pill-green', pendente:'pill-gray',
+          aguardando_aprovacao:'pill-purple',
+          emitida:'pill-orange', paga:'pill-green', atrasada:'pill-red'}[s]||'pill-gray';
+}
+function clientPendingTotal(client){
+  return client.invoices.reduce((a,i)=>{
+    const pago = i.payments.reduce((s,p)=>s+p.valor,0);
+    return a + Math.max(i.valor - pago, 0);
+  },0);
+}
+function calcHoras(start, end){
+  if(!start || !end) return 0;
+  const [h1,m1] = start.split(':').map(Number);
+  const [h2,m2] = end.split(':').map(Number);
+  const mins = (h2*60+m2) - (h1*60+m1);
+  return mins > 0 ? Math.round((mins/60)*100)/100 : 0;
+}
+function verPrintSuporte(entryId){
+  const client=getClient(state.selectedClientId);
+  const entry=(client.support_hours||[]).find(h=>h.id===entryId);
+  showToast(`Simulação: abrindo ${entry ? entry.print_url : 'print do chamado'}`);
+}
+function isMonthClosed(client, month){
+  return !!(client.support_closures && client.support_closures[month] && client.support_closures[month].closed);
+}
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* =========================================================
+   AÇÕES
+   ========================================================= */
+function goList(){ state.view='list'; state.selectedClientId=null; render(); }
+function openClient(id){
+  state.view='detail'; state.selectedClientId=id; state.tab='escopos'; state.hoursSubTab='escopo';
+  const client=getClient(id);
+  const months=availableMonths(client);
+  state.month = months.includes('2026-06') ? '2026-06' : months[0];
+  render();
+}
+function setTab(tab){ state.tab=tab; render(); }
+function setHoursSubTab(t){ state.hoursSubTab=t; render(); }
+function setMonth(m){ state.month=m; render(); }
+
+function fecharMesSuporte(){
+  const client=getClient(state.selectedClientId);
+  const total = (client.support_hours||[]).filter(h=>h.date.startsWith(state.month)).reduce((a,h)=>a+h.hours,0);
+  if(!confirm(`Fechar horas de suporte de ${monthLabel(state.month)}? Total: ${total}h. Depois de fechado, novos chamados desse mês não poderão ser lançados (a menos que reabra).`)) return;
+  if(!client.support_closures) client.support_closures={};
+  client.support_closures[state.month] = {closed:true, closedAt:'2026-06-27'};
+  render();
+  showToast(`Mês ${monthLabel(state.month)} fechado. Gere o relatório para enviar ao cliente.`);
+}
+function reabrirMesSuporte(){
+  const client=getClient(state.selectedClientId);
+  if(!confirm(`Reabrir ${monthLabel(state.month)} para edição?`)) return;
+  client.support_closures[state.month] = {closed:false};
+  render();
+  showToast(`Mês ${monthLabel(state.month)} reaberto.`);
+}
+function abrirRelatorioHoras(){
+  state.reportMonth = state.month;
+  state.view='report';
+  render();
+}
+function fecharRelatorio(){
+  state.view='detail';
+  render();
+}
+function imprimirRelatorio(){ window.print(); }
+function toggleNav(key){ state.navOpen = state.navOpen===key?null:key; render(); }
+function navStub(label){ showToast(`Simulação: abrindo "${label}" (não faz parte deste mockup)`); }
+
+function openModal(html){ document.getElementById('overlay').innerHTML=html; document.getElementById('overlay').classList.add('show'); }
+function closeModal(){ document.getElementById('overlay').classList.remove('show'); document.getElementById('overlay').innerHTML=''; }
+
+function modalLancarHorasEscopo(editId){
+  const client=getClient(state.selectedClientId);
+  const editing = editId ? client.hours.find(h=>h.id===editId) : null;
+  const elegiveis = client.scopes.filter(s=>s.status!=='aguardando_aprovacao');
+  const bloqueados = client.scopes.filter(s=>s.status==='aguardando_aprovacao');
+  const phases = elegiveis.flatMap(s=>s.phases.map(p=>({...p, scope_title:s.title})));
+  if(phases.length===0 && !editing){
+    openModal(`
+      <div class="modal">
+        <h3>Lançar horas de escopo</h3>
+        <div class="modal-sub">${client.name}</div>
+        <div class="hint-box" style="background:#EFE7FB; color:var(--purple);">Nenhum escopo aprovado disponível para lançamento. Escopos aguardando aprovação não contam horas até serem aprovados.</div>
+        <div class="modal-actions"><button class="btn-outline" onclick="closeModal()">Fechar</button></div>
+      </div>`);
+    return;
+  }
+  const options=phases.map(p=>`<option value="${p.id}" ${editing&&editing.phase_id===p.id?'selected':''}>${p.scope_title} — ${p.name}</option>`).join('');
+  const avisoBloqueio = bloqueados.length
+    ? `<div class="hint-box" style="background:#EFE7FB; color:var(--purple); margin-top:10px;">${bloqueados.length} escopo(s) aguardando aprovação não aparecem aqui: ${bloqueados.map(s=>s.title).join(', ')}.</div>`
+    : '';
+  openModal(`
+    <div class="modal">
+      <h3>${editing? 'Editar horas de escopo' : 'Lançar horas de escopo'}</h3>
+      <div class="modal-sub">${client.name}</div>
+      <div class="field"><label>Fase</label><select id="f-phase" onchange="atualizarSaldoFase()">${options}</select></div>
+      <div id="saldo-fase" class="hint-box"></div>
+      ${avisoBloqueio}
+      <div class="field" style="margin-top:13px;"><label>Data</label><input type="date" id="f-date" value="${editing?editing.date:'2026-06-27'}"></div>
+      <div class="field"><label>Horas</label><input type="number" id="f-qty" step="0.5" value="${editing?editing.hours:''}" placeholder="8"></div>
+      <div class="field"><label>Descrição</label><input type="text" id="f-desc" value="${editing?editing.desc||'':''}" placeholder="O que foi feito"></div>
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeModal()">Cancelar</button>
+        <button class="btn-primary" onclick="salvarHorasEscopo('${editId||''}')">${editing? 'Salvar alterações' : 'Lançar'}</button>
+      </div>
+    </div>`);
+  atualizarSaldoFase();
+}
+function atualizarSaldoFase(){
+  const client=getClient(state.selectedClientId);
+  const phaseId=document.getElementById('f-phase').value;
+  const phase=getAllPhases(client).find(p=>p.id===phaseId);
+  const consumed=consumedHours(client, phaseId);
+  const saldo=phase.contracted_hours-consumed;
+  const box=document.getElementById('saldo-fase');
+  box.textContent=`Contratado: ${phase.contracted_hours}h · Consumido: ${consumed}h · Saldo: ${saldo}h`;
+  box.style.background= saldo<0 ? '#FBE5E1':'#FCEFD9';
+  box.style.color = saldo<0 ? 'var(--red)':'var(--orange)';
+}
+function salvarHorasEscopo(editId){
+  const client=getClient(state.selectedClientId);
+  const phaseId=document.getElementById('f-phase').value;
+  const date=document.getElementById('f-date').value;
+  const qty=parseFloat(document.getElementById('f-qty').value)||0;
+  const desc=document.getElementById('f-desc').value;
+  const phase=getAllPhases(client).find(p=>p.id===phaseId);
+
+  if(editId){
+    const entry = client.hours.find(h=>h.id===editId);
+    entry.phase_id=phaseId; entry.date=date; entry.hours=qty; entry.desc=desc;
+    closeModal(); render();
+    showToast('Lançamento de horas atualizado.');
+    return;
+  }
+
+  const before=consumedHours(client, phaseId);
+  client.hours.push({id:'h'+Date.now(), phase_id:phaseId, date, hours:qty, desc});
+  if(phase.status==='pendente'){
+    client.scopes.forEach(s=>s.phases.forEach(p=>{ if(p.id===phaseId) p.status='em_andamento'; }));
+  }
+  closeModal(); render();
+  showToast((before+qty)>phase.contracted_hours ? 'Lançado. Atenção: fase excedeu horas contratadas.' : 'Horas de escopo lançadas com sucesso.');
+}
+
+function modalLancarHorasSuporte(editId){
+  const client=getClient(state.selectedClientId);
+  const editing = editId ? (client.support_hours||[]).find(h=>h.id===editId) : null;
+  const monthOfEntry = editing ? editing.date.slice(0,7) : state.month;
+  if(isMonthClosed(client, monthOfEntry)){
+    showToast(`${monthLabel(monthOfEntry)} está fechado. Reabra o mês para ${editing?'editar':'lançar'} chamados.`);
+    return;
+  }
+  openModal(`
+    <div class="modal" style="width:460px;">
+      <h3>${editing? 'Editar horas de suporte' : 'Lançar horas de suporte'}</h3>
+      <div class="modal-sub">${client.name} — vinculado a um chamado, sem aprovação de escopo</div>
+      <div class="field"><label>Nº do chamado</label><input type="text" id="f-sup-chamado" value="${editing?editing.chamado:''}" placeholder="CH-1083"></div>
+      <div class="field"><label>Data do chamado</label><input type="date" id="f-sup-date" value="${editing?editing.date:'2026-06-27'}"></div>
+      <div class="field"><label>Hora de abertura (chamado)</label><input type="time" id="f-sup-opened" value="${editing?editing.opened_time:'09:00'}"></div>
+      <div style="display:flex; gap:12px;">
+        <div class="field" style="flex:1;"><label>Início do atendimento</label><input type="time" id="f-sup-start" value="${editing?editing.start_time:'09:30'}" onchange="atualizarHorasSuporte()"></div>
+        <div class="field" style="flex:1;"><label>Fim do atendimento</label><input type="time" id="f-sup-end" value="${editing?editing.end_time:'10:00'}" onchange="atualizarHorasSuporte()"></div>
+      </div>
+      <div id="horas-calc-sup" class="hint-box" style="background:var(--blue-bg); color:var(--blue);"></div>
+      <div style="display:flex; gap:12px; margin-top:13px;">
+        <div class="field" style="flex:1;"><label>Valor/hora (R$)</label><input type="number" id="f-sup-valorhora" value="${editing?editing.valor_hora:250}"></div>
+      </div>
+      <div class="field"><label>Descrição</label><input type="text" id="f-sup-desc" value="${editing?editing.desc||'':''}" placeholder="O que foi atendido"></div>
+      <div class="field"><label>Print do chamado (simulado)</label><input type="text" id="f-sup-print" value="${editing?editing.print_url||'':''}" placeholder="ex: print_CH-1083.png"></div>
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeModal()">Cancelar</button>
+        <button class="btn-primary" onclick="salvarHorasSuporte('${editId||''}')">${editing? 'Salvar alterações' : 'Lançar'}</button>
+      </div>
+    </div>`);
+  atualizarHorasSuporte();
+}
+function atualizarHorasSuporte(){
+  const start=document.getElementById('f-sup-start').value;
+  const end=document.getElementById('f-sup-end').value;
+  const horas=calcHoras(start,end);
+  const box=document.getElementById('horas-calc-sup');
+  box.textContent = horas>0 ? `Horas do chamado: ${horas}h (calculado por início/fim do atendimento)` : 'Informe início e fim do atendimento para calcular as horas.';
+}
+function salvarHorasSuporte(editId){
+  const client=getClient(state.selectedClientId);
+  const chamado=document.getElementById('f-sup-chamado').value || '(sem número)';
+  const date=document.getElementById('f-sup-date').value;
+  const opened_time=document.getElementById('f-sup-opened').value;
+  const start_time=document.getElementById('f-sup-start').value;
+  const end_time=document.getElementById('f-sup-end').value;
+  const hours=calcHoras(start_time,end_time);
+  const valor_hora=parseFloat(document.getElementById('f-sup-valorhora').value)||250;
+  const desc=document.getElementById('f-sup-desc').value;
+  const print_url=document.getElementById('f-sup-print').value || `print_${chamado}.png`;
+  if(hours<=0){ showToast('Fim do atendimento precisa ser depois do início.'); return; }
+
+  if(editId){
+    const entry = client.support_hours.find(h=>h.id===editId);
+    Object.assign(entry, {chamado, date, opened_time, start_time, end_time, hours, valor_hora, desc, print_url});
+    closeModal(); render();
+    showToast('Lançamento de suporte atualizado.');
+    return;
+  }
+
+  client.support_hours.push({id:'sh'+Date.now(), chamado, date, opened_time, start_time, end_time, hours, valor_hora, desc, print_url});
+  closeModal(); render();
+  showToast('Horas de suporte lançadas com sucesso.');
+}
+
+function modalEditarFase(phaseId){
+  const client=getClient(state.selectedClientId);
+  let scope, phase;
+  client.scopes.forEach(s=>s.phases.forEach(p=>{ if(p.id===phaseId){ scope=s; phase=p; } }));
+
+  const scopeStatusOpts = ['aguardando_aprovacao','aprovado','em_andamento','concluido']
+    .map(s=>`<option value="${s}" ${scope.status===s?'selected':''}>${statusLabel(s)}</option>`).join('');
+  const phaseStatusOpts = ['pendente','em_andamento','concluido']
+    .map(s=>`<option value="${s}" ${phase.status===s?'selected':''}>${statusLabel(s)}</option>`).join('');
+
+  openModal(`
+    <div class="modal">
+      <h3>Editar fase</h3>
+      <div class="modal-sub">${scope.title} — ${phase.name}</div>
+      <div class="field"><label>Status do escopo</label><select id="f-scope-status">${scopeStatusOpts}</select></div>
+      <div class="hint-box" style="background:var(--blue-bg); color:var(--blue);">Enquanto o escopo estiver "Aguardando aprovação", nenhuma hora pode ser lançada nas fases dele.</div>
+      <div class="field" style="margin-top:13px;"><label>Status da fase</label><select id="f-phase-status">${phaseStatusOpts}</select></div>
+      <div style="display:flex; gap:12px;">
+        <div class="field" style="flex:1;"><label>Horas contratadas</label><input type="number" id="f-phase-hours" value="${phase.contracted_hours}"></div>
+        <div class="field" style="flex:1;"><label>Valor (R$)</label><input type="number" id="f-phase-value" value="${phase.value}"></div>
+      </div>
+      <div style="display:flex; gap:12px;">
+        <div class="field" style="flex:1;"><label>Início</label><input type="date" id="f-phase-start" value="${phase.start||''}"></div>
+        <div class="field" style="flex:1;"><label>Previsão de término</label><input type="date" id="f-phase-due" value="${phase.due||''}"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeModal()">Cancelar</button>
+        <button class="btn-primary" onclick="salvarEdicaoFase('${phaseId}')">Salvar alterações</button>
+      </div>
+    </div>`);
+}
+function salvarEdicaoFase(phaseId){
+  const client=getClient(state.selectedClientId);
+  let scope, phase;
+  client.scopes.forEach(s=>s.phases.forEach(p=>{ if(p.id===phaseId){ scope=s; phase=p; } }));
+  scope.status = document.getElementById('f-scope-status').value;
+  phase.status = document.getElementById('f-phase-status').value;
+  phase.contracted_hours = parseFloat(document.getElementById('f-phase-hours').value)||phase.contracted_hours;
+  phase.value = parseFloat(document.getElementById('f-phase-value').value)||phase.value;
+  phase.start = document.getElementById('f-phase-start').value;
+  phase.due = document.getElementById('f-phase-due').value;
+  closeModal(); render();
+  showToast('Fase atualizada.');
+}
+function modalNovaNfse(){
+  const client=getClient(state.selectedClientId);
+  const phases=getAllPhases(client);
+  const options=phases.map(p=>`<option value="${p.id}">${p.scope_title} — ${p.name}</option>`).join('');
+  openModal(`
+    <div class="modal">
+      <h3>Registrar NFS-e</h3>
+      <div class="modal-sub">${client.name}</div>
+      <div class="field"><label>Fase vinculada</label><select id="f-nfse-phase">${options}</select></div>
+      <div class="field"><label>Número da NFS-e</label><input type="text" id="f-nfse-num" placeholder="1082"></div>
+      <div class="field"><label>Valor (R$)</label><input type="number" id="f-nfse-valor" placeholder="5500"></div>
+      <div class="field"><label>Data de emissão</label><input type="date" id="f-nfse-data" value="2026-06-27"></div>
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeModal()">Cancelar</button>
+        <button class="btn-primary" onclick="salvarNfse()">Registrar</button>
+      </div>
+    </div>`);
+}
+function salvarNfse(){
+  const client=getClient(state.selectedClientId);
+  const phase_id=document.getElementById('f-nfse-phase').value;
+  const numero=document.getElementById('f-nfse-num').value||'----';
+  const valor=parseFloat(document.getElementById('f-nfse-valor').value)||0;
+  const emissao=document.getElementById('f-nfse-data').value;
+  client.invoices.push({id:'i'+Date.now(), phase_id, numero, valor, emissao, status:'emitida', payments:[]});
+  closeModal(); render();
+  showToast('NFS-e registrada como Emitida.');
+}
+
+function modalEditarNfse(invoiceId){
+  const client=getClient(state.selectedClientId);
+  const invoice=client.invoices.find(i=>i.id===invoiceId);
+  openModal(`
+    <div class="modal">
+      <h3>Editar NFS-e</h3>
+      <div class="modal-sub">${client.name}</div>
+      <div class="field"><label>Número da NFS-e</label><input type="text" id="f-edit-nfse-num" value="${invoice.numero}"></div>
+      <div class="field"><label>Valor (R$)</label><input type="number" id="f-edit-nfse-valor" value="${invoice.valor}"></div>
+      <div class="field"><label>Data de emissão</label><input type="date" id="f-edit-nfse-data" value="${invoice.emissao}"></div>
+      <div class="hint-box">Para alterar o status de pagamento, use "Registrar pagamento" na tabela — aqui é só ajuste de cadastro.</div>
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeModal()">Cancelar</button>
+        <button class="btn-primary" onclick="salvarEdicaoNfse('${invoiceId}')">Salvar alterações</button>
+      </div>
+    </div>`);
+}
+function salvarEdicaoNfse(invoiceId){
+  const client=getClient(state.selectedClientId);
+  const invoice=client.invoices.find(i=>i.id===invoiceId);
+  invoice.numero=document.getElementById('f-edit-nfse-num').value||invoice.numero;
+  invoice.valor=parseFloat(document.getElementById('f-edit-nfse-valor').value)||invoice.valor;
+  invoice.emissao=document.getElementById('f-edit-nfse-data').value||invoice.emissao;
+  closeModal(); render();
+  showToast('NFS-e atualizada.');
+}
+function modalRegistrarPagamento(invoiceId){
+  const client=getClient(state.selectedClientId);
+  const invoice=client.invoices.find(i=>i.id===invoiceId);
+  const pago=invoice.payments.reduce((a,p)=>a+p.valor,0);
+  const restante=invoice.valor-pago;
+  openModal(`
+    <div class="modal">
+      <h3>Registrar pagamento</h3>
+      <div class="modal-sub">NFS-e ${invoice.numero} — restante: ${fmtBRL(restante)}</div>
+      <div class="field"><label>Valor pago (R$)</label><input type="number" id="f-pag-valor" value="${restante}"></div>
+      <div class="field"><label>Data do pagamento</label><input type="date" id="f-pag-data" value="2026-06-27"></div>
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeModal()">Cancelar</button>
+        <button class="btn-primary" onclick="salvarPagamento('${invoiceId}')">Confirmar</button>
+      </div>
+    </div>`);
+}
+function salvarPagamento(invoiceId){
+  const client=getClient(state.selectedClientId);
+  const invoice=client.invoices.find(i=>i.id===invoiceId);
+  const valor=parseFloat(document.getElementById('f-pag-valor').value)||0;
+  const data=document.getElementById('f-pag-data').value;
+  invoice.payments.push({valor, data});
+  const total=invoice.payments.reduce((a,p)=>a+p.valor,0);
+  if(total>=invoice.valor) invoice.status='paga';
+  closeModal(); render();
+  showToast('Pagamento registrado.');
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function render(){
+  if(state.view==='report'){
+    document.getElementById('app').innerHTML = renderReportPage(getClient(state.selectedClientId));
+    return;
+  }
+  document.getElementById('app').innerHTML = renderNav() + (state.view==='list' ? renderList() : renderDetail());
+}
+
+function renderNav(){
+  const items = [
+    ['ADM', null], ['Arte Final', null], ['DROP', null], ['FAQ', null],
+    ['Financeiro/Compras', null], ['OmniPromo', 'omnipromo'], ['Produtividade', null],
+    ['Relatório Confecção', null], ['Relatórios', null], ['Status do pedido', null], ['Vendas', null]
+  ];
+  const menu = items.map(([label,key])=>{
+    if(key==='omnipromo'){
+      return `<div class="nav-item highlight">${label} <span class="chev">▾</span>
+        <div class="nav-dropdown">
+          <a class="active-feature" onclick="goList()">Controle de Horas Clientes</a>
+          <a onclick="navStub('Catálogo de Produtos')">Catálogo de Produtos</a>
+          <a onclick="navStub('Configurações da Integração')">Configurações da Integração</a>
+        </div>
+      </div>`;
+    }
+    return `<div class="nav-item" onclick="navStub('${label}')">${label} <span class="chev">▾</span></div>`;
+  }).join('');
+
+  return `
+    <div class="topnav">
+      <div class="nav-menu">${menu}</div>
+      <div class="nav-right">
+        <div class="nav-icon">📅</div>
+        <div class="nav-call"><div class="dot">📞</div><span>Iniciar<br>Ligação</span></div>
+        <div class="nav-user"><div class="av">S</div><div class="meta">SUP. ▾<br>sábado, 27/06/2026</div></div>
+      </div>
+    </div>`;
+}
+
+/* ---------- LIST VIEW ---------- */
+function renderList(){
+  const cards = state.clients.map(c=>{
+    const pendente = clientPendingTotal(c);
+    const monthHours = c.hours.filter(h=>h.date.startsWith(state.month)).reduce((a,h)=>a+h.hours,0)
+                     + (c.support_hours||[]).filter(h=>h.date.startsWith(state.month)).reduce((a,h)=>a+h.hours,0);
+    return `
+      <div class="client-panel" onclick="openClient('${c.id}')">
+        <div class="panel-head">
+          <div class="panel-head-left">
+            <span class="panel-icon">🏢</span>
+            <span class="panel-title">${c.name}</span>
+          </div>
+          <span class="status-dot ${c.status}" title="${c.status}"></span>
+        </div>
+        <div class="panel-cnpj">${c.cnpj}</div>
+        <div class="panel-stats">
+          <div class="stat-circle-wrap">
+            <div class="stat-circle c-blue">${c.scopes.length}</div>
+            <div class="stat-circle-label">Escopos</div>
+          </div>
+          <div class="stat-circle-wrap">
+            <div class="stat-circle ${pendente>0?'c-red':'c-green'}">${pendente>0? Math.round(pendente/1000)+'k' : 'OK'}</div>
+            <div class="stat-circle-label">Pendente</div>
+          </div>
+          <div class="stat-circle-wrap">
+            <div class="stat-circle c-orange">${monthHours}h</div>
+            <div class="stat-circle-label">${monthLabel(state.month)}</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="banner">
+      <div>
+        <div class="banner-title">CONTROLE DE HORAS — CLIENTES</div>
+        <div class="banner-sub">OmniPromo · escopos, horas, NFS-e e pagamentos por cliente</div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="client-grid">
+        ${cards}
+        <button class="btn-new" onclick="showToast('Simulação: cadastro de novo cliente')">+ Novo cliente</button>
+      </div>
+    </div>`;
+}
+
+/* ---------- DETAIL VIEW ---------- */
+function renderDetail(){
+  const client=getClient(state.selectedClientId);
+  const months=availableMonths(client);
+
+  const banner=`
+    <div class="banner">
+      <div>
+        <a class="banner-back" onclick="goList()">← Clientes</a>
+        <div class="banner-title">${client.name}</div>
+        <div class="banner-sub">${client.cnpj}</div>
+      </div>
+    </div>`;
+
+  const monthOptions = months.map(m=>`<option value="${m}" ${m===state.month?'selected':''}>${monthLabel(m)}</option>`).join('');
+  const filters=`
+    <div class="filters-card">
+      <div class="filters-label">Período</div>
+      <div class="filters-row">
+        <button class="pill-btn ${state.month==='2026-06'?'active':''}" onclick="setMonth('2026-06')">Mês Atual</button>
+        <button class="pill-btn ${state.month==='2026-05'?'active':''}" onclick="setMonth('2026-05')">Mês Anterior</button>
+        <select class="month-select" onchange="setMonth(this.value)">${monthOptions}</select>
+        <button class="btn-outline" onclick="render()">Filtrar</button>
+        <button class="btn-outline" onclick="setMonth('2026-06')">Limpar</button>
+      </div>
+      <div class="filters-hint">As horas e NFS-e exibidas abaixo respeitam o mês selecionado. Escopos e saldo pendente consideram o histórico completo.</div>
+    </div>`;
+
+  const stats = renderStatsRow(client);
+  const tabs = `
+    <div class="section-tabs">
+      <div class="section-tab ${state.tab==='escopos'?'active':''}" onclick="setTab('escopos')">Escopos</div>
+      <div class="section-tab ${state.tab==='nfse'?'active':''}" onclick="setTab('nfse')">NFS-e</div>
+      <div class="section-tab ${state.tab==='horas'?'active':''}" onclick="setTab('horas')">Horas lançadas</div>
+    </div>`;
+
+  let body='';
+  if(state.tab==='escopos') body=renderEscoposTable(client);
+  if(state.tab==='nfse') body=renderNfseTable(client);
+  if(state.tab==='horas') body=renderHorasSection(client);
+
+  return `${banner}<div class="content">${filters}${stats}${tabs}${body}</div>`;
+}
+
+function renderStatsRow(client){
+  const escoposAtivos = client.scopes.filter(s=>s.status!=='concluido').length;
+  const horasEscopoMes = client.hours.filter(h=>h.date.startsWith(state.month)).reduce((a,h)=>a+h.hours,0);
+  const horasSuporteMes = (client.support_hours||[]).filter(h=>h.date.startsWith(state.month)).reduce((a,h)=>a+h.hours,0);
+  const horasMes = horasEscopoMes + horasSuporteMes;
+  const nfseMes = client.invoices.filter(i=>i.emissao.startsWith(state.month));
+  const valorNfseMes = nfseMes.reduce((a,i)=>a+i.valor,0);
+  const pagoMes = client.invoices.reduce((a,i)=>a + i.payments.filter(p=>p.data.startsWith(state.month)).reduce((s,p)=>s+p.valor,0), 0);
+  const pendenteTotal = clientPendingTotal(client);
+
+  return `
+    <div class="stats-row">
+      <div class="stat-card b-gray">
+        <div class="stat-num t-gray">${escoposAtivos}</div>
+        <div class="stat-label">Escopos ativos</div>
+        <div class="stat-sub">de ${client.scopes.length} no total</div>
+      </div>
+      <div class="stat-card b-blue">
+        <div class="stat-num t-blue">${horasMes}h</div>
+        <div class="stat-label">Horas lançadas</div>
+        <div class="stat-sub">${horasEscopoMes}h escopo · ${horasSuporteMes}h suporte</div>
+      </div>
+      <div class="stat-card b-orange">
+        <div class="stat-num t-orange">${nfseMes.length}</div>
+        <div class="stat-label">NFS-e emitidas</div>
+        <div class="stat-sub">${fmtBRL(valorNfseMes)} no mês</div>
+      </div>
+      <div class="stat-card b-green">
+        <div class="stat-num t-green">${fmtBRL(pagoMes)}</div>
+        <div class="stat-label">Pago no mês</div>
+        <div class="stat-sub">${monthLabel(state.month)}</div>
+      </div>
+      <div class="stat-card b-red">
+        <div class="stat-num t-red">${fmtBRL(pendenteTotal)}</div>
+        <div class="stat-label">Saldo pendente</div>
+        <div class="stat-sub">histórico completo</div>
+      </div>
+    </div>`;
+}
+
+function renderEscoposTable(client){
+  const head=`
+    <div class="table-card">
+      <div class="table-card-head"><h3>Escopos e fases</h3>
+        <span class="action-link muted">Cadastro de escopo segue pela proposta aprovada</span>
+      </div>`;
+  if(client.scopes.length===0) return head + `<div class="empty-row">Nenhum escopo cadastrado para este cliente.</div></div>`;
+
+  const rows = client.scopes.flatMap(s=>s.phases.map(p=>{
+    const consumed=consumedHours(client,p.id);
+    const pct = p.contracted_hours? Math.min(Math.round(consumed/p.contracted_hours*100),100):0;
+    const over = consumed > p.contracted_hours;
+    return `<tr>
+      <td>${s.title} ${s.status==='aguardando_aprovacao'?'<span class="pill pill-purple" style="margin-left:6px;">Aguardando aprovação</span>':''}</td>
+      <td>${p.name}</td>
+      <td>${fmtDate(p.start)} → ${fmtDate(p.due)}</td>
+      <td class="right num">${consumed}h / ${p.contracted_hours}h</td>
+      <td><div class="mini-progress"><div class="mini-progress-fill ${over?'over':''}" style="width:${pct}%"></div></div></td>
+      <td><span class="pill ${pillClass(p.status)}">${statusLabel(p.status)}</span></td>
+      <td class="right"><a class="action-link" onclick="modalEditarFase('${p.id}')">Editar</a></td>
+    </tr>`;
+  })).join('');
+
+  return head + `
+    <table>
+      <thead><tr><th>Escopo</th><th>Fase</th><th>Período</th><th class="right">Horas</th><th>Progresso</th><th>Status</th><th class="right">Ações</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+}
+
+function renderNfseTable(client){
+  const allPhases=getAllPhases(client);
+  const list = client.invoices.filter(i=>i.emissao.startsWith(state.month)).sort((a,b)=>b.emissao.localeCompare(a.emissao));
+  const head=`
+    <div class="table-card">
+      <div class="table-card-head"><h3>NFS-e — ${monthLabel(state.month)}</h3>
+        <button class="btn-primary" onclick="modalNovaNfse()">+ Registrar NFS-e</button>
+      </div>`;
+  if(list.length===0) return head + `<div class="empty-row">Nenhuma NFS-e emitida em ${monthLabel(state.month)}.</div></div>`;
+
+  const rows = list.map(inv=>{
+    const phase=allPhases.find(p=>p.id===inv.phase_id);
+    const pago=inv.payments.reduce((a,p)=>a+p.valor,0);
+    const action = inv.status==='paga'
+      ? `<span class="action-link muted">pago em ${fmtDate(inv.payments[0]?.data)}</span>`
+      : `<a class="action-link" onclick="modalRegistrarPagamento('${inv.id}')">Registrar pagamento</a>`;
+    return `<tr>
+      <td class="num">${inv.numero}</td>
+      <td>${phase? phase.scope_title : '—'}</td>
+      <td>${fmtDate(inv.emissao)}</td>
+      <td class="right num">${fmtBRL(inv.valor)}</td>
+      <td><span class="pill ${pillClass(inv.status)}">${statusLabel(inv.status)}</span></td>
+      <td class="right">${action}</td>
+      <td class="right"><a class="action-link" onclick="modalEditarNfse('${inv.id}')">Editar</a></td>
+    </tr>`;
+  }).join('');
+
+  return head + `
+    <table>
+      <thead><tr><th>NFS-e</th><th>Escopo</th><th>Emissão</th><th class="right">Valor</th><th>Status</th><th class="right">Ação</th><th class="right">Ações</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+}
+
+function renderHorasSection(client){
+  const escopoMes = client.hours.filter(h=>h.date.startsWith(state.month)).length;
+  const suporteMes = (client.support_hours||[]).filter(h=>h.date.startsWith(state.month)).length;
+  const subtabs = `
+    <div class="subtabs">
+      <div class="subtab ${state.hoursSubTab==='escopo'?'active':''}" onclick="setHoursSubTab('escopo')">Horas de Escopo <span class="count">(${escopoMes})</span></div>
+      <div class="subtab ${state.hoursSubTab==='suporte'?'active':''}" onclick="setHoursSubTab('suporte')">Horas de Suporte/Manutenção <span class="count">(${suporteMes})</span></div>
+    </div>`;
+  const body = state.hoursSubTab==='escopo' ? renderHorasEscopoTable(client) : renderHorasSuporteTable(client);
+  return subtabs + body;
+}
+
+function renderHorasEscopoTable(client){
+  const allPhases=getAllPhases(client);
+  const list = client.hours.filter(h=>h.date.startsWith(state.month)).sort((a,b)=>b.date.localeCompare(a.date));
+  const bloqueados = client.scopes.filter(s=>s.status==='aguardando_aprovacao');
+  const aviso = bloqueados.length
+    ? `<div class="filters-hint" style="margin-bottom:10px;">${bloqueados.length} escopo(s) aguardando aprovação não contam horas ainda: ${bloqueados.map(s=>s.title).join(', ')}.</div>`
+    : '';
+  const head=`
+    ${aviso}
+    <div class="table-card">
+      <div class="table-card-head"><h3>Horas de escopo — ${monthLabel(state.month)}</h3>
+        <button class="btn-primary" onclick="modalLancarHorasEscopo()">+ Lançar horas de escopo</button>
+      </div>`;
+  if(list.length===0) return head + `<div class="empty-row">Nenhuma hora de escopo lançada em ${monthLabel(state.month)}.</div></div>`;
+
+  const rows = list.map(h=>{
+    const phase=allPhases.find(p=>p.id===h.phase_id);
+    return `<tr>
+      <td>${fmtDate(h.date)}</td>
+      <td>${phase? phase.scope_title : '—'}</td>
+      <td>${phase? phase.name : '—'}</td>
+      <td>${h.desc||'—'}</td>
+      <td class="right num">${h.hours}h</td>
+      <td class="right"><a class="action-link" onclick="modalLancarHorasEscopo('${h.id}')">Editar</a></td>
+    </tr>`;
+  }).join('');
+
+  return head + `
+    <table>
+      <thead><tr><th>Data</th><th>Escopo</th><th>Fase</th><th>Descrição</th><th class="right">Horas</th><th class="right">Ações</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+}
+
+function renderHorasSuporteTable(client){
+  const list = (client.support_hours||[]).filter(h=>h.date.startsWith(state.month)).sort((a,b)=>b.date.localeCompare(a.date));
+  const closed = isMonthClosed(client, state.month);
+  const closedAt = closed ? client.support_closures[state.month].closedAt : null;
+  const totalHoras = list.reduce((a,h)=>a+h.hours,0);
+  const totalValor = list.reduce((a,h)=>a+(h.hours*h.valor_hora),0);
+
+  const actionbar = `
+    <div class="hours-actionbar">
+      <span class="month-status-badge ${closed?'closed':'open'}">
+        <span class="dot2"></span>${closed ? `Mês fechado em ${fmtDate(closedAt)}` : 'Mês aberto'}
+      </span>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-outline" onclick="abrirRelatorioHoras()">⬇ Baixar relatório de horas</button>
+        ${closed
+          ? `<button class="btn-danger-text" onclick="reabrirMesSuporte()">Reabrir mês</button>`
+          : `<button class="btn-primary" onclick="fecharMesSuporte()">Fechar horas do mês</button>`}
+      </div>
+    </div>`;
+
+  const head=`
+    ${actionbar}
+    <div class="table-card">
+      <div class="table-card-head"><h3>Horas de suporte/manutenção — ${monthLabel(state.month)} <span style="color:var(--text-soft); font-weight:400;">· ${totalHoras}h · ${fmtBRL(totalValor)} no mês</span></h3>
+        <button class="btn-primary" onclick="modalLancarHorasSuporte()" ${closed?'disabled title="Mês fechado"':''}>+ Lançar horas de suporte</button>
+      </div>`;
+  if(list.length===0) return head + `<div class="empty-row">Nenhum chamado de suporte registrado em ${monthLabel(state.month)}.</div></div>`;
+
+  const rows = list.map(h=>{
+    const subtotal = h.hours * h.valor_hora;
+    return `<tr>
+      <td>${fmtDate(h.date)} ${h.opened_time||''}</td>
+      <td class="num">${h.chamado}</td>
+      <td>${h.desc||'—'}</td>
+      <td><a class="action-link" onclick="verPrintSuporte('${h.id}')">Visualizar print</a></td>
+      <td>${h.start_time||'—'}</td>
+      <td>${h.end_time||'—'}</td>
+      <td class="right num">${h.hours}h</td>
+      <td class="right">${fmtBRL(h.valor_hora)}</td>
+      <td class="right num">${fmtBRL(subtotal)}</td>
+      <td class="right">${closed
+          ? `<span class="action-link muted">Editar</span>`
+          : `<a class="action-link" onclick="modalLancarHorasSuporte('${h.id}')">Editar</a>`}</td>
+    </tr>`;
+  }).join('');
+
+  return head + `
+    <table>
+      <thead><tr>
+        <th>Data/Hora abertura</th><th>Chamado</th><th>Descrição</th><th>Print</th>
+        <th>Início atend.</th><th>Fim atend.</th><th class="right">Horas</th><th class="right">Valor/h</th><th class="right">Subtotal</th><th class="right">Ações</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr class="report-total-row"><td colspan="6">Total do período</td><td class="right">${totalHoras}h</td><td></td><td class="right">${fmtBRL(totalValor)}</td><td></td></tr>
+      </tfoot>
+    </table></div>`;
+}
+
+function renderReportPage(client){
+  const month = state.reportMonth || state.month;
+  const list = (client.support_hours||[]).filter(h=>h.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date));
+  const totalHoras = list.reduce((a,h)=>a+h.hours,0);
+  const totalValor = list.reduce((a,h)=>a+(h.hours*h.valor_hora),0);
+  const totalChamados = new Set(list.map(h=>h.chamado)).size;
+  const media = totalChamados ? (totalHoras/totalChamados).toFixed(1) : '0.0';
+  const closed = isMonthClosed(client, month);
+  const closedAt = closed ? client.support_closures[month].closedAt : null;
+
+  const rows = list.length ? list.map(h=>{
+    const subtotal = h.hours * h.valor_hora;
+    return `<tr>
+      <td>${fmtDate(h.date)} ${h.opened_time||''}</td>
+      <td>${h.chamado}</td>
+      <td>${h.desc||'—'}</td>
+      <td>${h.start_time||'—'}</td>
+      <td>${h.end_time||'—'}</td>
+      <td class="right">${h.hours}h</td>
+      <td class="right">${fmtBRL(h.valor_hora)}</td>
+      <td class="right">${fmtBRL(subtotal)}</td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="8" style="text-align:center; color:var(--text-soft); padding:20px;">Nenhum chamado neste período.</td></tr>`;
+
+  return `
+    <div class="report-toolbar no-print">
+      <a onclick="fecharRelatorio()">← Voltar para o painel</a>
+      <button class="btn-primary" onclick="imprimirRelatorio()">🖨 Imprimir / Salvar como PDF</button>
+    </div>
+    <div class="report-page">
+      <div class="report-brand">OmniPromo · Controle de Horas</div>
+      <div class="report-title">Relatório de Horas de Suporte e Manutenção</div>
+
+      <div class="report-meta-grid">
+        <div><div class="label">Cliente</div><div class="value">${client.name}</div></div>
+        <div><div class="label">CNPJ</div><div class="value">${client.cnpj}</div></div>
+        <div><div class="label">Período</div><div class="value">${monthLabel(month)}</div></div>
+        <div><div class="label">Status do período</div><div class="value">${closed ? `Fechado em ${fmtDate(closedAt)}` : 'Aberto'}</div></div>
+      </div>
+
+      <div class="report-summary">
+        <div class="box"><div class="n">${totalHoras}h</div><div class="l">Total de horas</div></div>
+        <div class="box"><div class="n">${totalChamados}</div><div class="l">Chamados atendidos</div></div>
+        <div class="box"><div class="n">${media}h</div><div class="l">Média por chamado</div></div>
+        <div class="box"><div class="n">${fmtBRL(totalValor)}</div><div class="l">Valor total</div></div>
+      </div>
+
+      <table>
+        <thead><tr>
+          <th>Data/Hora abertura</th><th>Chamado</th><th>Descrição</th>
+          <th>Início atend.</th><th>Fim atend.</th><th class="right">Horas</th><th class="right">Valor/h</th><th class="right">Subtotal</th>
+        </tr></thead>
+        <tbody>
+          ${rows}
+          <tr class="report-total-row"><td colspan="5">Total do período</td><td class="right">${totalHoras}h</td><td></td><td class="right">${fmtBRL(totalValor)}</td></tr>
+        </tbody>
+      </table>
+
+      <div class="report-approval">
+        <div class="title">Aprovação do cliente</div>
+        <div class="sign-grid">
+          <div><div class="sign-line"></div><div class="sign-cap">Nome do responsável</div></div>
+          <div><div class="sign-line"></div><div class="sign-cap">Cargo</div></div>
+          <div><div class="sign-line"></div><div class="sign-cap">Data</div></div>
+          <div><div class="sign-line"></div><div class="sign-cap">Assinatura</div></div>
+        </div>
+      </div>
+
+      <div class="report-footer-note">Relatório gerado em 27/06/2026 pelo painel OmniPromo — Controle de Horas Clientes. Os "prints" de cada chamado ficam disponíveis no sistema e não são incluídos neste PDF.</div>
+    </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
