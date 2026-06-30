@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Validador de Pedidos — Innovation Brindes</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f0;color:#1a1a1a;min-height:100vh}
+header{background:#2d5a1b;color:#fff;padding:0 28px;display:flex;align-items:stretch}
+.hd-brand{display:flex;align-items:center;gap:10px;padding:14px 0;margin-right:24px}
+.hd-brand h1{font-size:16px;font-weight:600}
+nav{display:flex;align-items:stretch;gap:2px;margin-left:auto}
+nav button{background:none;border:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:500;padding:0 18px;cursor:pointer;border-bottom:3px solid transparent;transition:all .15s}
+nav button:hover{color:#fff;background:rgba(255,255,255,.08)}
+nav button.active{color:#fff;border-bottom-color:#7ec850}
+#today-lbl{font-size:11px;color:rgba(255,255,255,.5);display:flex;align-items:center;padding:0 0 0 16px;border-left:1px solid rgba(255,255,255,.15)}
+main{max-width:880px;margin:28px auto;padding:0 16px}
+.view{display:none}.view.active{display:block}
+
+/* UPLOAD */
+#upload-zone{border:2px dashed #9fc28a;border-radius:12px;background:#fff;padding:48px 24px;text-align:center;cursor:pointer;transition:all .2s}
+#upload-zone:hover,#upload-zone.dragover{border-color:#3d7a22;background:#f3f9ef}
+#upload-zone big{font-size:42px;display:block;margin-bottom:10px}
+#upload-zone h2{font-size:17px;font-weight:600;color:#2d5a1b;margin-bottom:4px}
+#upload-zone p{font-size:13px;color:#777;margin-bottom:16px}
+#upload-zone input{display:none}
+#btn-sel{background:#2d5a1b;color:#fff;border:none;border-radius:8px;padding:9px 22px;font-size:13px;font-weight:500;cursor:pointer}
+#btn-sel:hover{background:#3d7a22}
+.panel{background:#fff;border-radius:10px;padding:16px 20px;margin-top:16px;display:flex;align-items:center;gap:12px;font-size:13px;color:#444}
+.spinner{width:20px;height:20px;border:3px solid #e0e0e0;border-top-color:#2d5a1b;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+#err-box{display:none;background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;padding:13px 18px;margin-top:14px;font-size:13px;color:#991b1b}
+#file-chip{display:none;background:#f0f7eb;border:1px solid #9fc28a;border-radius:8px;padding:8px 14px;margin-top:12px;font-size:13px;color:#2d5a1b;align-items:center;gap:8px}
+
+/* RESULTS */
+.summary-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.stat{background:#fff;border-radius:10px;padding:14px 16px;text-align:center}
+.stat .num{font-size:26px;font-weight:700}.stat .lbl{font-size:11px;color:#777;margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
+.num.ok{color:#276f11}.num.falha{color:#b91c1c}.num.sd{color:#92400e}
+.sec-title{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.07em;margin:16px 0 7px}
+.rule-row{background:#fff;border-radius:8px;padding:11px 14px;margin-bottom:5px;display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:start}
+.rn{font-size:11px;font-weight:700;color:#bbb;padding-top:1px;text-align:center}
+.rb .desc{font-size:13px;line-height:1.4}
+.rb .obs{font-size:12px;color:#555;margin-top:3px;line-height:1.35}
+.badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.badge.ok{background:#dcfce7;color:#166534}
+.badge.falha{background:#fee2e2;color:#991b1b}
+.badge.sd{background:#fef3c7;color:#92400e}
+.badge.na{background:#f3f4f6;color:#6b7280}
+.badge.manual{background:#ede9fe;color:#5b21b6}
+/* ── BARRA DE AÇÃO FIXA ── */
+#result-topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:#fff;border-radius:10px;padding:12px 18px;
+  margin-bottom:16px;
+  position:sticky;top:0;z-index:10;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  border-left:4px solid #2d5a1b;
+}
+#result-filename{font-size:13px;color:#555;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+#btn-reset{
+  background:#2d5a1b;color:#fff;border:none;
+  border-radius:8px;padding:9px 20px;
+  font-size:13px;font-weight:600;cursor:pointer;
+  white-space:nowrap;flex-shrink:0;
+  display:flex;align-items:center;gap:6px;
+}
+#btn-reset:hover{background:#3d7a22}
+#btn-reset::before{content:"↺";font-size:15px}
+
+/* GERENCIADOR */
+.mgr-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+#btn-add-rule{background:#2d5a1b;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:500;cursor:pointer}
+#btn-add-rule:hover{background:#3d7a22}
+#rule-search{padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;width:220px;outline:none}
+#rule-search:focus{border-color:#4a8f1e}
+.tbl-wrap{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb}
+.rule-tbl{width:100%;border-collapse:collapse}
+.rule-tbl th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#888;text-align:left;padding:8px 10px;border-bottom:1.5px solid #e5e7eb}
+.rule-tbl td{padding:9px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle;font-size:13px}
+.rule-tbl tr:last-child td{border-bottom:none}
+.rule-tbl tr:hover td{background:#fafafa}
+.toggle{position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#ccc;border-radius:99px;cursor:pointer;transition:.2s}
+.slider:before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
+input:checked+.slider{background:#2d5a1b}
+input:checked+.slider:before{transform:translateX(16px)}
+.act-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;font-size:14px;color:#888;line-height:1}
+.act-btn:hover{background:#f3f4f6;color:#333}
+.act-btn.danger:hover{background:#fee2e2;color:#b91c1c}
+.act-btns{display:flex;gap:2px;justify-content:flex-end}
+.edit-desc{width:100%;padding:6px 8px;border:1px solid #4a8f1e;border-radius:6px;font-size:13px;font-family:inherit;outline:none;resize:none}
+.edit-actions{display:flex;gap:6px;margin-top:5px}
+.save-btn{background:#2d5a1b;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer}
+.cancel-btn{background:none;border:1px solid #ccc;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;color:#555}
+#add-form{background:#f0f7eb;border:1px solid #9fc28a;border-radius:10px;padding:16px 18px;margin-bottom:14px;display:none}
+#add-form h3{font-size:13px;font-weight:600;margin-bottom:10px;color:#2d5a1b}
+#new-desc{width:100%;padding:8px 10px;border:1px solid #9fc28a;border-radius:7px;font-size:13px;font-family:inherit;resize:none;height:64px;outline:none}
+.form-footer{display:flex;gap:8px;margin-top:10px}
+#btn-save-new{background:#2d5a1b;color:#fff;border:none;border-radius:7px;padding:8px 18px;font-size:13px;font-weight:500;cursor:pointer}
+#btn-cancel-new{background:none;border:1px solid #bbb;border-radius:7px;padding:8px 14px;font-size:13px;cursor:pointer;color:#555}
+.tag-auto{background:#dbeafe;color:#1e40af;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600}
+.tag-custom{background:#ede9fe;color:#5b21b6;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600}
+.info-box{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:12px;color:#78350f;margin-bottom:14px;line-height:1.5}
+
+/* DEBUG PANEL */
+#debug-box{display:none;background:#1e1e1e;color:#d4d4d4;border-radius:10px;padding:14px 16px;margin-top:16px;font-size:11px;font-family:monospace;white-space:pre-wrap;max-height:300px;overflow-y:auto;line-height:1.5}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd-brand">
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="13" fill="#4a9c25"/><path d="M7 13l4 4 8-8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1>Validador de Pedidos · Innovation Brindes</h1>
+  </div>
+  <nav>
+    <button id="tab-val" class="active" onclick="switchTab('val')">📋 Validar Pedido</button>
+    <button id="tab-mgr" onclick="switchTab('mgr')">⚙️ Gerenciar Regras<span id="mgr-badge"></span></button>
+  </nav>
+  <div id="today-lbl"></div>
+</header>
+
+<main>
+  <!-- ══ VALIDAR ══ -->
+  <div id="view-val" class="view active">
+    <div id="upload-zone">
+      <big>📄</big>
+      <h2>Arraste o PDF do pedido aqui</h2>
+      <p>ou clique para selecionar o arquivo</p>
+      <button id="btn-sel">Selecionar PDF</button>
+      <input type="file" id="file-input" accept=".pdf">
+    </div>
+    <div id="file-chip">📎 <span id="chip-name"></span></div>
+    <div id="err-box"></div>
+    <div id="status" class="panel" style="display:none"><div class="spinner"></div><span id="status-msg">Lendo o PDF...</span></div>
+    <div id="results" style="display:none;margin-top:18px">
+
+      <!-- BARRA DE AÇÃO — sempre visível no topo dos resultados -->
+      <div id="result-topbar">
+        <div id="result-filename">📄 <span id="result-fname"></span></div>
+        <button id="btn-reset">↺ Validar outro pedido</button>
+      </div>
+
+      <div class="summary-bar">
+        <div class="stat"><div class="num ok" id="cnt-ok">0</div><div class="lbl">✓ Aprovadas</div></div>
+        <div class="stat"><div class="num falha" id="cnt-falha">0</div><div class="lbl">✗ Reprovadas</div></div>
+        <div class="stat"><div class="num sd" id="cnt-sd">0</div><div class="lbl">⚠ Sem dados / Manual</div></div>
+      </div>
+      <div class="sec-title">Regras reprovadas</div><div id="list-falha"></div>
+      <div class="sec-title">Verificação manual / sem dados no PDF</div><div id="list-sd"></div>
+      <div class="sec-title">Aprovadas</div><div id="list-ok"></div>
+      <button onclick="toggleDebug()" style="display:block;margin:8px auto 0;background:none;border:none;font-size:11px;color:#bbb;cursor:pointer;text-decoration:underline">🔍 Ver texto extraído do PDF (debug)</button>
+    </div>
+    <div id="debug-box"></div>
+  </div>
+
+  <!-- ══ GERENCIAR REGRAS ══ -->
+  <div id="view-mgr" class="view">
+    <div class="info-box">
+      💡 <strong>Regras automáticas</strong> (🔵) têm lógica embutida — só a descrição pode ser editada.
+      <strong>Regras manuais</strong> (🟣) são lembretes que aparecem como "Verificar manualmente" no resultado.
+      Regras desativadas são ignoradas na validação.
+    </div>
+    <div class="mgr-toolbar">
+      <input type="text" id="rule-search" placeholder="🔍  Filtrar regras..." oninput="renderMgrTable()">
+      <button id="btn-add-rule" onclick="showAddForm()">＋ Nova regra manual</button>
+    </div>
+    <div id="add-form">
+      <h3>Nova regra manual</h3>
+      <textarea id="new-desc" placeholder="Descreva o que deve ser verificado manualmente..."></textarea>
+      <div class="form-footer">
+        <button id="btn-cancel-new" onclick="hideAddForm()">Cancelar</button>
+        <button id="btn-save-new" onclick="saveNewRule()">Adicionar regra</button>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table class="rule-tbl">
+        <thead><tr>
+          <th style="width:42px">#</th>
+          <th>Descrição</th>
+          <th style="width:70px;text-align:center">Tipo</th>
+          <th style="width:60px;text-align:center">Ativa</th>
+          <th style="width:72px;text-align:right">Ações</th>
+        </tr></thead>
+        <tbody id="mgr-tbody"></tbody>
+      </table>
+    </div>
+    <p style="font-size:11px;color:#aaa;text-align:center;margin-top:10px">Alterações salvas automaticamente neste navegador.</p>
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+'use strict';
+
+// ─────────────────────────────────────────────────────────────
+// CONFIGURAÇÃO
+// ─────────────────────────────────────────────────────────────
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+document.getElementById('today-lbl').textContent =
+  'Hoje: ' + new Date().toLocaleDateString('pt-BR');
+
+const FERIADOS = new Set([
+  '2025-01-01','2025-04-18','2025-04-21','2025-05-01','2025-06-19',
+  '2025-09-07','2025-10-12','2025-11-02','2025-11-15','2025-11-20','2025-12-25',
+  '2026-01-01','2026-04-03','2026-04-21','2026-05-01','2026-06-04',
+  '2026-09-07','2026-10-12','2026-11-02','2026-11-15','2026-11-20','2026-12-25',
+  '2027-01-01','2027-03-26','2027-04-21','2027-05-01','2027-05-27',
+  '2027-09-07','2027-10-12','2027-11-02','2027-11-15','2027-11-20','2027-12-25',
+]);
+
+// ─────────────────────────────────────────────────────────────
+// EXTRAÇÃO DO PDF — ordem natural + hasEOL + delta-Y
+// ─────────────────────────────────────────────────────────────
+// POR QUÊ não usar sort-por-Y:
+//   PDFs com layout de 3 colunas (FATURAMENTO | ENTREGA | ENVIO) têm os
+//   cabeçalhos na mesma altura visual. Reordenar por Y coloca as 3 seções
+//   na mesma linha de texto, zerando o getSection() que depende da ordem
+//   das strings. A ordem interna do PDF.js já respeita a sequência do
+//   documento — basta adicionar \n onde há quebra real.
+// ─────────────────────────────────────────────────────────────
+async function extractPages(pdf) {
+  const pages = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+
+    let text = '';
+    let prevY = null;
+
+    for (const item of content.items) {
+      const s = item.str || '';
+      const y = item.transform ? item.transform[5] : null;
+
+      if (text.length > 0 && !text.endsWith('\n')) {
+        // Quebra de linha se: (1) hasEOL explícito no PDF, ou
+        //                     (2) posição vertical mudou mais de 3 unidades
+        const yJump = prevY !== null && y !== null && Math.abs(y - prevY) > 6;
+        text += (item.hasEOL || yJump) ? '\n' : ' ';
+      }
+
+      text += s;
+
+      // hasEOL indica fim-de-linha APÓS este item
+      if (item.hasEOL && !text.endsWith('\n')) text += '\n';
+
+      if (y !== null) prevY = y;
+    }
+
+    pages.push(text.trim());
+  }
+  return pages;
+}
+
+// ─────────────────────────────────────────────────────────────
+// HELPERS DE PARSING
+// ─────────────────────────────────────────────────────────────
+const norm  = t => (t || '').replace(/\s+/g, ' ').trim();
+const digs  = s => (s || '').replace(/\D/g, '');
+const xtr   = (t, rx, g = 1) => { const m = (t || '').match(rx); return m ? norm(m[g]) : null; };
+
+function getSection(text, start, end) {
+  // Tenta primeiro exato, depois sem acentos
+  const t = text || '';
+  let si = t.indexOf(start);
+  if (si === -1) si = stripA(t).indexOf(stripA(start));
+  if (si === -1) return '';
+  const after = t.slice(si + start.length);
+  if (!end) return after;
+  let ei;
+  if (typeof end === 'string') {
+    ei = after.indexOf(end);
+    if (ei === -1) ei = stripA(after).indexOf(stripA(end));
+  } else {
+    ei = after.search(end);
+  }
+  return ei === -1 ? after : after.slice(0, ei);
+}
+
+function parseMoney(s) {
+  if (!s) return null;
+  const m = (s || '').match(/([\d.]+,\d{2})/);
+  return m ? parseFloat(m[1].replace(/\./g, '').replace(',', '.')) : null;
+}
+
+function parseBRDate(str) {
+  if (!str) return null;
+  let m = str.match(/(\d{1,2})\/(\d{2})\/(\d{4})/);
+  if (m) return new Date(+m[3], +m[2] - 1, +m[1]);
+  m = str.match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\s+(\d+)\s+(\d{4})/i);
+  if (m) return new Date(`${m[1]} ${m[2]}, ${m[3]}`);
+  return null;
+}
+
+const isoDate   = d => d.toISOString().split('T')[0];
+const isWorkDay = d => { const w = d.getDay(); return w !== 0 && w !== 6 && !FERIADOS.has(isoDate(d)); };
+function addWorkDays(d, n) { let c = new Date(d), a = 0; while (a < n) { c.setDate(c.getDate() + 1); if (isWorkDay(c)) a++; } return c; }
+const diffDays  = (a, b) => Math.round((b - a) / 86400000);
+const fmt       = v => v != null ? v.toFixed(2).replace('.', ',') : '?';
+
+// Remove acentos — PDF.js pode decodificar 'GRAVAÇAO' como 'GRAVACAO' dependendo da fonte embutida no PDF.
+function stripA(t) {
+  return (t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+// Extrai campo normalizando acentos em bloco, label e stops.
+// (1) tenta com newline como delimitador; (2) lookahead até próximo campo.
+function xtrField(block, label, stopTokens = []) {
+  const bN = stripA(block);
+  const lN = stripA(label);
+
+  // 1) Tem newline após o valor — caminho confiável
+  const rxNl = new RegExp(lN + '[:\\s]+([^\\n]+)', 'i');
+  const m1 = bN.match(rxNl);
+  if (m1) return norm(m1[1]);
+
+  // 2) Tudo em uma linha — para no próximo campo conhecido
+  if (stopTokens.length) {
+    // Escape simples: só escapa o que o RegExp precisa
+    function escRx(s) { return stripA(s).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); }
+    const stopPart = stopTokens.map(escRx).join('|');
+    const rx2 = new RegExp(lN + '[:\\s]+(.+?)(?=' + stopPart + '|$)', 'is');
+    const m2 = bN.match(rx2);
+    if (m2) return norm(m2[1]);
+  }
+
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────
+// PARSER PRINCIPAL DO PEDIDO
+// ─────────────────────────────────────────────────────────────
+function parsePedido(pages) {
+  const full = pages.join('\n');
+  const p2   = pages[1] || '';
+  const p3   = pages[2] || '';
+
+  // ── Seções principais ──────────────────────────────────────
+  const secFat  = getSection(full, 'DADOS DO FATURAMENTO', 'DADOS DA ENTREGA');
+  const secEnt  = getSection(full, 'DADOS DA ENTREGA', 'DADOS DE ENVIO');
+  const secEnv  = getSection(full, 'DADOS DE ENVIO', /SEU CONSULTOR|DETALHES DO PEDIDO/i);
+  const secCons = getSection(full, 'SEU CONSULTOR', /ITEM\s+QTD|DETALHES DO PEDIDO/i);
+
+  // ── Faturamento ───────────────────────────────────────────
+  // CNPJ: captura exatamente 14 dígitos logo após "CNPJ:"
+  const fat_cnpj = digs(xtr(secFat, /CNPJ[:\s]+([\d.\/\-]+)/i));
+  const fat_ie   = xtr(secFat, /\bIE[:\s]+(\S+)/i);
+  const fat_cid  = xtrField(secFat, 'Cidade/UF', ['Nome','Email','Telefone','Celular','CEP']);
+  const fat_tel  = digs(xtrField(secFat, 'Telefone', ['Celular','Email','Nome','Codigo']));
+
+  // ── Entrega ───────────────────────────────────────────────
+  const ent_cnpj = digs(xtr(secEnt, /CNPJ[:\s]+([\d.\/\-]+)/i));
+  const ent_ie   = xtr(secEnt, /\bIE[:\s]+(\S+)/i);
+  const ent_cid  = xtrField(secEnt, 'Cidade/UF', ['Nome','Email','Telefone','Celular','CEP']);
+  const ent_tel  = digs(xtrField(secEnt, 'Telefone', ['Celular','Email','Nome','Codigo']));
+
+  // ── Envio ─────────────────────────────────────────────────
+  const data_saida   = xtrField(secEnv, 'Saída da mercadoria[^:]*', ['API','Entregue']);
+  const entregue_por = xtrField(secEnv, 'Entregue por[:]?', ['API','Importante','Não nos']);
+  const saida_date   = parseBRDate(data_saida);
+
+  // ── Consultor ─────────────────────────────────────────────
+  const cons_nome  = xtrField(secCons, 'Nome',     ['Celular','Telefone','Email','Compre']);
+  const cons_cel   = xtrField(secCons, 'Celular',  ['Telefone','Email','Nome']);
+  const cons_tel   = xtrField(secCons, 'Telefone', ['Celular','Email','Nome']);
+  const cons_email = xtrField(secCons, 'Email',    ['Nome','Celular','Telefone']);
+
+  // ── Itens ─────────────────────────────────────────────────
+  // Isola a seção de itens entre o header da tabela e "VALOR TOTAL ITENS"
+  // ── Itens — extração robusta ────────────────────────────────────────
+  // Opera APENAS na pág 1 normalizada para evitar matches na seção ST (pág 3).
+  // Usa regex prefix-fuzzy: apenas os primeiros chars não-ambíguos de cada label,
+  // porque PDFs brasileiros frequentemente têm encoding quebrado (GRAVAÇÃO → GRAVA??O).
+  const p1N = stripA(pages[0] || '');
+
+  // Isola seção de itens dentro da pág 1 normalizada
+  const iHdr = p1N.search(/ITEM\s+QTD/i);
+  const iEnd = p1N.search(/VALOR\s+TOTAL\s+ITENS/i);
+  const iSec = (iHdr >= 0 && iEnd > iHdr) ? p1N.slice(iHdr, iEnd) : p1N;
+
+  // Helper: extrai campo com regex — tenta [\n delimitado] depois [lookahead]
+  function fld(block, rxNewline, rxFallback) {
+    const m1 = block.match(rxNewline);
+    if (m1) return norm(m1[1]);
+    if (rxFallback) { const m2 = block.match(rxFallback); if (m2) return norm(m2[1]); }
+    return null;
+  }
+
+  // Encontra todos os COD: NNN na seção de itens
+  const codRx = /\bCOD\s*:\s*(\d+)/gi;
+  let codM;
+  const codHits = [];
+  while ((codM = codRx.exec(iSec)) !== null) codHits.push({ ...codM });
+
+  const items = [];
+  const parseItemBlock = (blk) => ({
+    // Prefix-fuzzy: COR\S* captura COR mesmo com chars extras de encoding
+    cor:      fld(blk, /\bCOR\s*:\s*([^\n]+)/i,
+                       /\bCOR\s*:\s*(.+?)(?=\s*GRAV|\s*IMPR|\s*PRAZ|\s*DIME|\s*\d+\s+R|$)/is),
+    // GRAV\S* cobre GRAVACAO, GRAVAÇAO, GRAVA??O, etc.
+    gravacao: fld(blk, /\bGRAV\S*\s*:\s*([^\n]+)/i,
+                       /\bGRAV\S*\s*:\s*(.+?)(?=\s*IMPR|\s*PRAZ|\s*DIME|\s*\d+\s+R|$)/is),
+    // IMPR\S* cobre IMPRESSOES, IMPRESSÕES, IMPRESS??ES, etc.
+    batidas:  fld(blk, /\bIMPR\S*\s*:\s*([^\n]+)/i,
+                       /\bIMPR\S*\s*:\s*(.+?)(?=\s*PRAZ|\s*DIME|\s*\d+\s+R|$)/is)
+           || fld(blk, /\bBATID\S*\s*:\s*([^\n]+)/i,
+                       /\bBATID\S*\s*:\s*(.+?)(?=\s*PRAZ|\s*DIME|$)/is),
+    // PRAZO\s+\S+\s+\S+ cobre "PRAZO DE PRODUCAO" e variantes
+    prazo:    fld(blk, /\bPRAZO\s+\S+\s+\S+\s*:\s*([^\n]+)/i,
+                       /\bPRAZO\s+\S+\s+\S+\s*:\s*(.+?)(?=\s*DIME|\s*\d+\s+R|$)/is),
+  });
+
+  if (codHits.length) {
+    codHits.forEach((cm, idx) => {
+      const bStart = cm.index;
+      const bEnd   = codHits[idx + 1] ? codHits[idx + 1].index : iSec.length;
+      const blk    = iSec.slice(bStart, bEnd);
+      items.push({ cod: cm[1], ...parseItemBlock(blk) });
+    });
+  } else {
+    // Fallback: sem seção isolada — busca diretamente no p1N completo
+    items.push({ cod: fld(p1N, /\bCOD\s*:\s*(\d+)/i), ...parseItemBlock(p1N) });
+  }
+
+  // ── Valores / resumo ─────────────────────────────────────
+  const innov_razao = xtrField(full, 'Razão Social', ['CNPJ','Endereço','Cidade','CEP']);
+  const total_raw   = xtr(full, /TOTAL[:\s]+R\$\s*([\d.,]+)/i);
+  const valor_total = parseMoney('R$ ' + (total_raw || ''));
+  const vu_raw      = xtr(full, /VALOR UNIT[AÁAÁ]RIO[\s\S]{0,20}R\$\s*([\d.,]+)/i)
+                   || xtr(full, /R\$\s*([\d.,]+)/);  // primeiro valor monetário como fallback
+  const valor_unit  = parseMoney('R$ ' + (vu_raw || ''));
+  const frete_raw   = xtr(full, /VALOR FRETE[:\s]+R?\$?\s*([\d.,]+)/i);
+  const valor_frete = parseMoney('R$ ' + (frete_raw || '0'));
+  const cond_pagto  = xtrField(full, 'CONDICOES DE PAGAMENTO', ['FRETE','Nos comprometemos']);
+
+  const saldo_raw   = xtr(p2, /Saldo Restante[:\s]+R?\$?\s*([\d.,]+)/i);
+  const saldo       = parseMoney('R$ ' + (saldo_raw || ''));
+  const aprov_raw   = xtr(full, /Pedido aprovado pelo usuario[:\s]+([^\n]+)/i);
+  const aprov_data  = parseBRDate(aprov_raw);
+  const aprov_hora  = aprov_raw ? xtr(aprov_raw, /(\d{1,2}:\d{2}(?:AM|PM)?)/i) : null;
+
+  // ST
+  const data_st_raw = xtr(p3, /(\d{2}\/\d{2}\/\d{4})\s+\d{2}:\d{2}/);
+
+  // Prazo em dias úteis (extrai número do primeiro item)
+  const prazoStr  = items[0]?.prazo || '';
+  const prazo_dias = prazoStr ? (parseInt(prazoStr.match(/(\d+)/)?.[1] || '0') || null) : null;
+
+  return {
+    innov_razao,
+    fat_cnpj, fat_ie, fat_cid, fat_tel,
+    ent_cnpj, ent_ie, ent_cid, ent_tel,
+    data_saida, saida_date, entregue_por,
+    cons_nome, cons_cel, cons_tel, cons_email,
+    items, valor_total, valor_unit, valor_frete,
+    cond_pagto, saldo,
+    aprov_raw, aprov_data, aprov_hora,
+    data_st_raw, prazo_dias,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// STORAGE DE REGRAS (localStorage)
+// ─────────────────────────────────────────────────────────────
+const LS_KEY = 'innov_regras_v2';
+function getConfig() {
+  try { const c = JSON.parse(localStorage.getItem(LS_KEY)) || {}; c.overrides = c.overrides||{}; c.custom = c.custom||[]; return c; }
+  catch(e) { return { overrides:{}, custom:[] }; }
+}
+function saveConfig(cfg) { localStorage.setItem(LS_KEY, JSON.stringify(cfg)); }
+
+const BASE_RULES = [
+  {n:1,  desc:'Valor unitário deve ser maior que 0'},
+  {n:2,  desc:'Valor total deve ser maior que 0'},
+  {n:3,  desc:'Telefone deve ter 8 dígitos (sem DDD) e não pode começar com 9'},
+  {n:4,  desc:'IE entrega = ISENTO → razão social Innovation ≠ "Innovation Comercio De Brindes" e classificação = NÃO CONTRIBUINTE'},
+  {n:5,  desc:'"Entregue por" não pode estar vazio'},
+  {n:6,  desc:'Todos os campos do consultor devem estar preenchidos (nome, celular, telefone, email)'},
+  {n:7,  desc:'Nos itens: cor, gravação, batidas e prazo de produção não podem estar vazios'},
+  {n:8,  desc:'IE ≠ ISENTO → razão social Innovation deve ser "Innovation Comercio" e classificação = CONTRIBUINTE'},
+  {n:9,  desc:'CNPJ < 14 dígitos → condição de pagamento deve ser PIX ou Cartão de crédito'},
+  {n:10, desc:'Cor, gravação e código do produto no layout devem coincidir com os detalhes do pedido'},
+  {n:11, desc:'Saldo restante deve ser R$ 0,00'},
+  {n:12, desc:'NOSSO CARRO + São Paulo/SP + total > R$ 2.000 → frete pode ser zero'},
+  {n:13, desc:'Data de atualização do cliente deve ter menos de 10 dias'},
+  {n:14, desc:'Entrega fora de SP → "ST solicitada" deve ter data no mês atual (exceto IE=ISENTO ou ICMS NÃO CONTRIBUINTE)'},
+  {n:15, desc:'Nenhum campo de link layout pode estar vazio'},
+  {n:16, desc:'Data de atualização do produto não pode ter diferença maior que 5 dias'},
+  {n:17, desc:'Campo "aprovação cliente" não pode estar vazio'},
+  {n:18, desc:'Data de alteração do cliente não pode ter diferença maior que 10 dias'},
+  {n:19, desc:'Data de confirmação do estoque não pode ter diferença maior que 2 dias'},
+  {n:20, desc:'NOSSO CARRO → data de saída só pode ser segunda, quarta ou sexta-feira'},
+  {n:21, desc:'PIX ou Cartão de crédito → valor pago deve ser maior ou igual ao valor total'},
+  {n:22, desc:'Data de saída = 1 dia útil após o prazo de produção (até 14h → próximo dia útil; após 14h → 2 dias úteis da aprovação)'},
+  {n:23, desc:'Múltiplos produtos devem ter o mesmo prazo de produção'},
+];
+
+function getEffectiveRules() {
+  const cfg = getConfig();
+  return BASE_RULES.map(r => {
+    const ov = cfg.overrides[r.n] || {};
+    return { n:r.n, desc: ov.desc !== undefined ? ov.desc : r.desc, enabled: ov.enabled !== undefined ? ov.enabled : true, type:'auto' };
+  });
+}
+function getCustomRules() { return getConfig().custom.map(r => ({...r, type:'custom'})); }
+function getAllActiveRules() { return [...getEffectiveRules().filter(r=>r.enabled), ...getCustomRules().filter(r=>r.enabled)]; }
+
+// ─────────────────────────────────────────────────────────────
+// VALIDADORES (um por regra)
+// ─────────────────────────────────────────────────────────────
+const ok   = obs => ({status:'OK',   obs});
+const fail = obs => ({status:'FALHA', obs});
+const sd   = obs => ({status:'SEM DADOS', obs});
+const na   = obs => ({status:'N/A',  obs});
+
+const VALIDATORS = {
+  1(d) {
+    if (d.valor_unit === null) return sd('Valor unitário não encontrado no PDF');
+    return d.valor_unit > 0 ? ok(`R$ ${fmt(d.valor_unit)}`) : fail(`R$ ${fmt(d.valor_unit)} — deve ser > 0`);
+  },
+  2(d) {
+    if (d.valor_total === null) return sd('Valor total não encontrado no PDF');
+    return d.valor_total > 0 ? ok(`R$ ${fmt(d.valor_total)}`) : fail(`R$ ${fmt(d.valor_total)} — deve ser > 0`);
+  },
+  3(d) {
+    const phones = [];
+    if (d.fat_tel) phones.push({l:'faturamento', v:d.fat_tel});
+    if (d.ent_tel) phones.push({l:'entrega',     v:d.ent_tel});
+    if (!phones.length) return sd('Telefone não encontrado no PDF');
+    const erros = [];
+    phones.forEach(p => {
+      const sem = p.v.length >= 10 ? p.v.slice(2) : p.v;
+      if (sem.length !== 8) erros.push(`${p.l}: ${p.v} → sem DDD: "${sem}" (${sem.length} dígitos, esperado 8)`);
+      else if (sem[0] === '9') erros.push(`${p.l}: ${p.v} → sem DDD: "${sem}" (começa com 9)`);
+    });
+    return erros.length ? fail(erros.join(' | ')) : ok(phones.map(p=>`${p.l}: ${p.v}`).join(' | '));
+  },
+  4(d) {
+    const ie = (d.ent_ie || '').toUpperCase();
+    if (ie !== 'ISENTO') return na(`IE entrega = ${ie || '?'} (≠ ISENTO) — regra não se aplica`);
+    const r = (d.innov_razao || '').toUpperCase();
+    if (r.includes('INNOVATION COMERCIO DE BRINDES'))
+      return fail(`Razão social "${d.innov_razao}" não deveria ser "Innovation Comercio De Brindes" quando IE=ISENTO | ⚠ Classificação NÃO CONTRIBUINTE verificar no Sankhya`);
+    return ok('Razão social OK | ⚠ Classificação verificar no Sankhya');
+  },
+  5(d) { return d.entregue_por ? ok(d.entregue_por) : fail('"Entregue por" vazio ou não encontrado'); },
+  6(d) {
+    const campos = [['Nome',d.cons_nome],['Celular',d.cons_cel],['Telefone',d.cons_tel],['Email',d.cons_email]];
+    const vz = campos.filter(c => !c[1]).map(c => c[0]);
+    return vz.length ? fail(`Campos vazios: ${vz.join(', ')}`) : ok(`${d.cons_nome} | ${d.cons_tel} | ${d.cons_email}`);
+  },
+  7(d) {
+    if (!d.items.length) return sd('Nenhum item encontrado no PDF');
+    const erros = [];
+    d.items.forEach((it, i) => {
+      [['Cor',it.cor],['Gravação',it.gravacao],['Batidas/Impressões',it.batidas],['Prazo',it.prazo]]
+        .filter(c => !c[1]).forEach(c => erros.push(`Item ${i+1} (COD ${it.cod||'?'}): ${c[0]} vazio`));
+    });
+    return erros.length
+      ? fail(erros.join(' | '))
+      : ok(d.items.map(it=>`COD ${it.cod}: COR=${it.cor} GRAV=${it.gravacao} BAT=${it.batidas} PRAZO=${it.prazo}`).join(' | '));
+  },
+  8(d) {
+    const ie = (d.ent_ie || '').toUpperCase();
+    if (ie === 'ISENTO') return na('IE = ISENTO — regra não se aplica');
+    const r = (d.innov_razao || '').toUpperCase();
+    if (!r.includes('INNOVATION COMERCIO'))
+      return fail(`Razão social "${d.innov_razao}" — verificar entidade | ⚠ Classificação CONTRIBUINTE verificar no Sankhya`);
+    return ok(`${d.innov_razao} | ⚠ Classificação CONTRIBUINTE verificar no Sankhya`);
+  },
+  9(d) {
+    const cnpjs = [{l:'faturamento',v:d.fat_cnpj},{l:'entrega',v:d.ent_cnpj}].filter(c => c.v);
+    const curtos = cnpjs.filter(c => c.v.length < 14);
+    if (!curtos.length) return ok('Todos CNPJs com 14 dígitos — regra não se aplica');
+    const cond = (d.cond_pagto || '').toUpperCase();
+    return (cond.includes('PIX') || cond.includes('CART'))
+      ? ok(`CNPJ curto detectado | Condição: ${d.cond_pagto}`)
+      : fail(`${curtos.map(c=>`${c.l}: ${c.v} (${c.v.length} dígitos)`).join(', ')} → Condição atual: "${d.cond_pagto}" — deve ser PIX ou Cartão`);
+  },
+  10() { return sd('Configuração de layout não extraível do PDF — conferir no sistema'); },
+  11(d) {
+    if (d.saldo === null) return sd('Saldo restante não encontrado (disponível na pág. 2 do PDF)');
+    return Math.abs(d.saldo) < 0.01 ? ok('Saldo Restante: R$ 0,00') : fail(`Saldo Restante: R$ ${fmt(d.saldo)} — deve ser 0`);
+  },
+  12(d) {
+    const ep = (d.entregue_por || '').toUpperCase();
+    if (!ep.includes('NOSSO CARRO')) return na(`Entregue por: ${d.entregue_por||'?'} — regra apenas para NOSSO CARRO`);
+    const cid = (d.ent_cid || d.fat_cid || '').toUpperCase();
+    if (!cid.includes('SÃO PAULO') && !cid.includes('SAO PAULO')) return fail(`Cidade: ${cid} — exige São Paulo/SP`);
+    if ((d.valor_total || 0) <= 2000) return fail(`Total R$ ${fmt(d.valor_total)} ≤ R$ 2.000 — frete não pode ser zerado`);
+    return ok(`NOSSO CARRO | SP | Total R$ ${fmt(d.valor_total)} > 2.000 — frete pode ser 0`);
+  },
+  13() { return sd('Data de atualização do cliente não está no PDF — verificar no Sankhya'); },
+  14(d) {
+    const cid = (d.ent_cid || '').toUpperCase();
+    const isSP = cid.endsWith('/SP') || cid.includes(' SP') || cid.includes('SÃO PAULO') || cid.includes('SAO PAULO');
+    if (isSP) return na(`Entrega em SP (${d.ent_cid}) — regra aplica-se a outros estados`);
+    const ie = (d.ent_ie || '').toUpperCase();
+    if (ie === 'ISENTO') return na('IE = ISENTO — regra não exige ST');
+    if (!d.data_st_raw) return fail(`Entrega ${d.ent_cid} (fora SP) | IE=${d.ent_ie} — DATA ST não encontrada no PDF (pág. 3)`);
+    const dt = parseBRDate(d.data_st_raw);
+    if (!dt) return fail(`Data ST "${d.data_st_raw}" inválida`);
+    const hoje = new Date();
+    return (dt.getMonth() === hoje.getMonth() && dt.getFullYear() === hoje.getFullYear())
+      ? ok(`Entrega ${d.ent_cid} | ST ${d.data_st_raw} (mês atual ✓)`)
+      : fail(`Data ST ${d.data_st_raw} fora do mês atual`);
+  },
+  15() { return sd('Links de layout não são extraíveis do PDF — conferir no sistema'); },
+  16() { return sd('Data de atualização do produto não está no PDF — verificar no Sankhya'); },
+  17(d) { return d.aprov_raw ? ok((d.aprov_raw || '').slice(0, 90)) : fail('Aprovação do cliente não encontrada no PDF'); },
+  18() { return sd('Data de alteração do cliente não está no PDF — verificar no Sankhya'); },
+  19() { return sd('Data de confirmação do estoque não está no PDF — verificar no Sankhya'); },
+  20(d) {
+    const ep = (d.entregue_por || '').toUpperCase();
+    if (!ep.includes('NOSSO CARRO')) return na(`Entregue por: ${d.entregue_por||'?'} — regra apenas para NOSSO CARRO`);
+    if (!d.saida_date) return fail(`Data de saída "${d.data_saida}" inválida ou não encontrada`);
+    const dw = d.saida_date.getDay();
+    const nms = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    if (dw !== 1 && dw !== 3 && dw !== 5) return fail(`Saída ${d.data_saida} cai em ${nms[dw]} — deve ser Seg, Qua ou Sex`);
+    if (!isWorkDay(d.saida_date)) return fail(`${d.data_saida} (${nms[dw]}) é feriado`);
+    return ok(`Saída ${d.data_saida} — ${nms[dw]} ✓`);
+  },
+  21(d) {
+    const cond = (d.cond_pagto || '').toUpperCase();
+    if (!cond.includes('PIX') && !cond.includes('CART')) return na(`Condição: ${d.cond_pagto||'?'} — regra apenas para PIX/Cartão`);
+    return sd('Valor pago não está disponível no PDF — confirmar manualmente');
+  },
+  22(d) {
+    if (!d.aprov_data) return sd(`Aprovação sem data parseável: "${d.aprov_raw||'?'}"`);
+    if (!d.prazo_dias)  return sd(`Prazo de produção não encontrado. Prazo lido: "${d.items[0]?.prazo||'?'}"`);
+    if (!d.saida_date)  return sd(`Data de saída não parseável: "${d.data_saida||'?'}"`);
+    let after14 = false;
+    if (d.aprov_hora) {
+      const h = d.aprov_hora.toUpperCase();
+      const hm = h.match(/(\d+):(\d+)(AM|PM)?/);
+      if (hm) { let hr = +hm[1]; if (hm[3]==='PM'&&hr<12) hr+=12; if (hm[3]==='AM'&&hr===12) hr=0; after14 = hr >= 14; }
+    }
+    const inicio   = addWorkDays(new Date(d.aprov_data), after14 ? 2 : 1);
+    const fim      = addWorkDays(inicio, d.prazo_dias - 1);
+    const esperado = addWorkDays(fim, 1);
+    const diff     = diffDays(esperado, d.saida_date);
+    const f        = dt => dt.toLocaleDateString('pt-BR');
+    const info     = `Aprov ${f(d.aprov_data)} ${after14?'após':'até'} 14h → Início ${f(inicio)} → Fim prod ${f(fim)} → Esperado ${f(esperado)} | PDF: ${d.data_saida}`;
+    return diff === 0 ? ok(info) : fail(`${info} — DIFERENÇA: ${diff>0?'+':''}${diff} dias`);
+  },
+  23(d) {
+    if (d.items.length <= 1) return na('Apenas 1 produto — regra não se aplica');
+    const prazos = [...new Set(d.items.map(i => i.prazo).filter(Boolean))];
+    return prazos.length > 1
+      ? fail(`Prazos diferentes: ${d.items.map((it,i)=>`Item ${i+1}: ${it.prazo}`).join(' | ')}`)
+      : ok(`Todos com prazo: ${prazos[0]||'?'}`);
+  },
+};
+
+// ─────────────────────────────────────────────────────────────
+// VALIDAÇÃO
+// ─────────────────────────────────────────────────────────────
+function validateAll(dados) {
+  return getAllActiveRules().map(r => {
+    let res;
+    if (r.type === 'auto') {
+      try { res = VALIDATORS[r.n] ? VALIDATORS[r.n](dados) : sd('Validador não implementado'); }
+      catch(e) { res = sd('Erro interno: ' + e.message); }
+    } else {
+      res = { status:'MANUAL', obs:'Verificar manualmente conforme a descrição da regra' };
+    }
+    return { n:r.n, desc:r.desc, type:r.type, ...res };
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// PIPELINE PRINCIPAL
+// ─────────────────────────────────────────────────────────────
+async function run(file) {
+  setStatus('Lendo o PDF (linha a linha)...');
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const pages = await extractPages(pdf);
+
+  setStatus('Analisando as regras...');
+  const dados = parsePedido(pages);
+
+  showDebug(pages, dados);
+  renderResults(validateAll(dados));
+}
+
+function showDebug(pages, dados) {
+  const box = document.getElementById('debug-box');
+  // Recria o iSec para mostrar no debug
+  const p1N = typeof stripA === 'function' ? stripA(pages[0]||'') : (pages[0]||'');
+  const iHdr = p1N.search(/ITEM\s+QTD/i);
+  const iEnd = p1N.search(/VALOR\s+TOTAL\s+ITENS/i);
+  const iSecDebug = (iHdr>=0&&iEnd>iHdr) ? p1N.slice(iHdr,iEnd) : '(seção não encontrada)';
+
+  const linhas = [
+    '╔══ CAMPOS EXTRAÍDOS ═══════════════════════════════════════╗',
+    `  Razão Social Innovation : ${dados.innov_razao || '❌ NÃO ENCONTRADO'}`,
+    `  IE entrega              : ${dados.ent_ie || '❌'}  │  Cidade: ${dados.ent_cid || '❌'}`,
+    `  CNPJ faturamento        : ${dados.fat_cnpj || '❌'}  │  IE: ${dados.fat_ie || '❌'}`,
+    `  Entregue por            : ${dados.entregue_por || '❌ NÃO ENCONTRADO'}`,
+    `  Data saída              : ${dados.data_saida || '❌'}`,
+    `  Consultor               : ${dados.cons_nome || '❌'} | ${dados.cons_tel || '?'} | ${dados.cons_email || '?'}`,
+    '  ────────────────────────────────────────────────────────────',
+    `  Qtd itens encontrados   : ${dados.items.length}`,
+    ...(dados.items.map((it, i) => [
+      `  Item ${i+1} COD ${it.cod || '?'}:`,
+      `    COR        : ${it.cor      || '❌'}`,
+      `    GRAVAÇÃO   : ${it.gravacao || '❌'}`,
+      `    IMPRESSÕES : ${it.batidas  || '❌'}`,
+      `    PRAZO      : ${it.prazo    || '❌'}`,
+    ].join('\n')).join('\n').split('\n')),
+    '  ────────────────────────────────────────────────────────────',
+    `  Valor unitário          : ${dados.valor_unit != null ? 'R$ '+dados.valor_unit.toFixed(2) : '❌'}`,
+    `  Valor total             : ${dados.valor_total != null ? 'R$ '+dados.valor_total.toFixed(2) : '❌'}`,
+    `  Saldo restante          : ${dados.saldo != null ? 'R$ '+dados.saldo.toFixed(2) : '❌'}`,
+    `  Cond. pagamento         : ${dados.cond_pagto || '❌'}`,
+    `  Aprovação               : ${dados.aprov_raw || '❌'}`,
+    `  Data ST (pág 3)         : ${dados.data_st_raw || '❌'}`,
+    '╚═══════════════════════════════════════════════════════════╝',
+    '',
+    '=== SEÇÃO DE ITENS ISOLADA (p1N entre ITEM QTD e VALOR TOTAL ITENS) ===',
+    iSecDebug.slice(0, 1000),
+    '',
+    '=== TEXTO BRUTO PÁG 1 — primeiros 3500 chars ===',
+    (pages[0] || '').slice(0, 3500),
+  ];
+  box.textContent = linhas.join('\n');
+  box.style.display = 'none';
+}
+
+function toggleDebug() {
+  const box = document.getElementById('debug-box');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+// ─────────────────────────────────────────────────────────────
+// UI — RESULTADOS
+// ─────────────────────────────────────────────────────────────
+function setStatus(msg) {
+  document.getElementById('status').style.display = 'flex';
+  document.getElementById('status-msg').textContent = msg;
+}
+
+function renderResults(results) {
+  document.getElementById('status').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  const cnt = {OK:0, FALHA:0, OUTROS:0};
+  results.forEach(r => r.status === 'OK' ? cnt.OK++ : r.status === 'FALHA' ? cnt.FALHA++ : cnt.OUTROS++);
+  document.getElementById('cnt-ok').textContent   = cnt.OK;
+  document.getElementById('cnt-falha').textContent = cnt.FALHA;
+  document.getElementById('cnt-sd').textContent   = cnt.OUTROS;
+
+  const g = {FALHA:[], SEM:[],  OK:[]};
+  results.forEach(r => r.status==='FALHA' ? g.FALHA.push(r) : r.status==='OK' ? g.OK.push(r) : g.SEM.push(r));
+
+  const lf = document.getElementById('list-falha');
+  lf.innerHTML = g.FALHA.length ? '' : '<div style="font-size:13px;color:#555;padding:8px 0">Nenhuma regra reprovada ✓</div>';
+  g.FALHA.forEach(r => lf.appendChild(makeCard(r)));
+
+  const ls = document.getElementById('list-sd');
+  ls.innerHTML = g.SEM.length ? '' : '<div style="font-size:13px;color:#555;padding:8px 0">Nenhuma pendência</div>';
+  g.SEM.forEach(r => ls.appendChild(makeCard(r)));
+
+  const lo = document.getElementById('list-ok');
+  lo.innerHTML = '';
+  g.OK.forEach(r => lo.appendChild(makeCard(r)));
+}
+
+function makeCard(r) {
+  const div = document.createElement('div');
+  div.className = 'rule-row';
+  const bc = r.status==='OK'?'ok':r.status==='FALHA'?'falha':r.status==='MANUAL'?'manual':'sd';
+  const bl = r.status==='SEM DADOS'?'Sem dados':r.status==='MANUAL'?'Manual':r.status;
+  div.innerHTML = `<div class="rn">#${r.n}</div><div class="rb"><div class="desc">${r.desc}</div>${r.obs?`<div class="obs">${r.obs}</div>`:''}</div><span class="badge ${bc}">${bl}</span>`;
+  return div;
+}
+
+function resetVal() {
+  ['results','status','err-box','file-chip'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('upload-zone').style.display = 'block';
+  document.getElementById('debug-box').style.display = 'none';
+  document.getElementById('file-input').value = '';
+}
+
+// ─────────────────────────────────────────────────────────────
+// UI — GERENCIADOR DE REGRAS
+// ─────────────────────────────────────────────────────────────
+let editingId = null;
+
+function renderMgrTable() {
+  const q = (document.getElementById('rule-search').value || '').toLowerCase();
+  const cfg = getConfig();
+  const tbody = document.getElementById('mgr-tbody');
+  tbody.innerHTML = '';
+
+  getEffectiveRules().forEach(r => {
+    if (q && !r.desc.toLowerCase().includes(q) && !String(r.n).includes(q)) return;
+    const isEditing = editingId === r.n;
+    const tr = document.createElement('tr');
+    if (!r.enabled) tr.style.opacity = '.5';
+    tr.innerHTML = `
+      <td><span style="font-size:11px;font-weight:700;color:#bbb">${r.n}</span></td>
+      <td>${isEditing
+        ? `<textarea class="edit-desc" id="ei-${r.n}" rows="2">${r.desc}</textarea>
+           <div class="edit-actions">
+             <button class="save-btn" onclick="saveEditAuto(${r.n})">Salvar</button>
+             <button class="cancel-btn" onclick="cancelEdit()">Cancelar</button>
+             <button class="cancel-btn" style="margin-left:auto" onclick="resetDesc(${r.n})">↺ Original</button>
+           </div>`
+        : `<span>${r.desc}</span>`}
+      </td>
+      <td style="text-align:center"><span class="tag-auto">Auto</span></td>
+      <td style="text-align:center">
+        <label class="toggle"><input type="checkbox" ${r.enabled?'checked':''} onchange="toggleRule('auto',${r.n},this.checked)"><span class="slider"></span></label>
+      </td>
+      <td><div class="act-btns"><button class="act-btn" onclick="startEdit('auto',${r.n})">✏️</button></div></td>`;
+    tbody.appendChild(tr);
+  });
+
+  getCustomRules().forEach(r => {
+    if (q && !r.desc.toLowerCase().includes(q)) return;
+    const isEditing = editingId === r.id;
+    const tr = document.createElement('tr');
+    if (!r.enabled) tr.style.opacity = '.5';
+    tr.innerHTML = `
+      <td><span style="font-size:11px;font-weight:700;color:#bbb">${r.n}</span></td>
+      <td>${isEditing
+        ? `<textarea class="edit-desc" id="ei-${r.id}" rows="2">${r.desc}</textarea>
+           <div class="edit-actions">
+             <button class="save-btn" onclick="saveEditCustom('${r.id}')">Salvar</button>
+             <button class="cancel-btn" onclick="cancelEdit()">Cancelar</button>
+           </div>`
+        : `<span>${r.desc}</span>`}
+      </td>
+      <td style="text-align:center"><span class="tag-custom">Manual</span></td>
+      <td style="text-align:center">
+        <label class="toggle"><input type="checkbox" ${r.enabled?'checked':''} onchange="toggleRule('custom','${r.id}',this.checked)"><span class="slider"></span></label>
+      </td>
+      <td><div class="act-btns">
+        <button class="act-btn" onclick="startEdit('custom','${r.id}')">✏️</button>
+        <button class="act-btn danger" onclick="deleteCustom('${r.id}')">🗑️</button>
+      </div></td>`;
+    tbody.appendChild(tr);
+  });
+
+  const disabled = [...getEffectiveRules(),...getCustomRules()].filter(r=>!r.enabled).length;
+  document.getElementById('mgr-badge').textContent = disabled ? ` (${disabled} desativada${disabled>1?'s':''})` : '';
+}
+
+function toggleRule(type, key, val) {
+  const cfg = getConfig();
+  if (type === 'auto') { if (!cfg.overrides[key]) cfg.overrides[key]={}; cfg.overrides[key].enabled = val; }
+  else { const r = cfg.custom.find(c=>c.id===key); if(r) r.enabled = val; }
+  saveConfig(cfg); renderMgrTable();
+}
+
+function startEdit(type, key) { editingId = key; renderMgrTable(); setTimeout(()=>{ const el=document.getElementById(`ei-${key}`); if(el){el.focus();el.select();} },50); }
+function cancelEdit() { editingId = null; renderMgrTable(); }
+
+function saveEditAuto(n) {
+  const el = document.getElementById(`ei-${n}`);
+  if (!el) return;
+  const val = el.value.trim();
+  if (!val) return alert('A descrição não pode ser vazia.');
+  const cfg = getConfig();
+  if (!cfg.overrides[n]) cfg.overrides[n] = {};
+  cfg.overrides[n].desc = val;
+  saveConfig(cfg); editingId = null; renderMgrTable();
+}
+
+function resetDesc(n) {
+  if (!confirm('Restaurar a descrição original?')) return;
+  const cfg = getConfig();
+  if (cfg.overrides[n]) delete cfg.overrides[n].desc;
+  saveConfig(cfg); editingId = null; renderMgrTable();
+}
+
+function saveEditCustom(id) {
+  const el = document.getElementById(`ei-${id}`);
+  if (!el) return;
+  const val = el.value.trim();
+  if (!val) return alert('A descrição não pode ser vazia.');
+  const cfg = getConfig();
+  const r = cfg.custom.find(c=>c.id===id);
+  if (r) r.desc = val;
+  saveConfig(cfg); editingId = null; renderMgrTable();
+}
+
+function deleteCustom(id) {
+  if (!confirm('Excluir esta regra?')) return;
+  const cfg = getConfig();
+  cfg.custom = cfg.custom.filter(c=>c.id!==id);
+  saveConfig(cfg); renderMgrTable();
+}
+
+function showAddForm() { document.getElementById('add-form').style.display='block'; document.getElementById('new-desc').focus(); }
+function hideAddForm() { document.getElementById('add-form').style.display='none'; document.getElementById('new-desc').value=''; }
+
+function saveNewRule() {
+  const desc = document.getElementById('new-desc').value.trim();
+  if (!desc) return alert('Informe a descrição da regra.');
+  const cfg = getConfig();
+  const id  = 'c_' + Date.now();
+  const n   = 'C' + (cfg.custom.length + 1);
+  cfg.custom.push({ id, n, desc, enabled:true });
+  saveConfig(cfg); hideAddForm(); renderMgrTable();
+}
+
+// ─────────────────────────────────────────────────────────────
+// TABS / EVENTOS
+// ─────────────────────────────────────────────────────────────
+function switchTab(t) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+t).classList.add('active');
+  document.getElementById('tab-'+t).classList.add('active');
+  if (t === 'mgr') renderMgrTable();
+}
+
+const zone = document.getElementById('upload-zone');
+const fi   = document.getElementById('file-input');
+document.getElementById('btn-sel').addEventListener('click', e => { e.stopPropagation(); fi.click(); });
+zone.addEventListener('click', () => fi.click());
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+  e.preventDefault(); zone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type === 'application/pdf') processFile(f);
+  else showErr('Selecione um arquivo PDF.');
+});
+fi.addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
+document.getElementById('btn-reset').addEventListener('click', resetVal);
+
+async function processFile(file) {
+  zone.style.display = 'none';
+  const chip = document.getElementById('file-chip');
+  chip.style.display = 'flex';
+  document.getElementById('chip-name').textContent = file.name;
+  const rf = document.getElementById('result-fname');
+  if (rf) rf.textContent = file.name;
+  try { await run(file); }
+  catch(err) { showErr(err.message); }
+}
+
+function showErr(msg) {
+  document.getElementById('status').style.display = 'none';
+  const e = document.getElementById('err-box');
+  e.style.display = 'block';
+  e.textContent = 'Erro: ' + msg;
+}
+
+// Init
+renderMgrTable();
+</script>
+</body>
+</html>
