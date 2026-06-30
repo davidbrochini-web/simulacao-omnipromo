@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Simulador - Emissão de Nota (Adiamento)</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#f4f5f7; color:#222; }
+  .topnav { background:#2b2f38; color:#fff; padding:14px 20px; font-size:14px; display:flex; gap:22px; flex-wrap:wrap; }
+  .titlebar { background:#4a8fc2; color:#fff; text-align:center; padding:14px; font-size:18px; font-weight:bold; letter-spacing:.5px; }
+  .badge { background:#fff3cd; color:#7a5c00; font-size:11px; padding:2px 8px; border-radius:10px; margin-left:8px; font-weight:normal; }
+  .filterbar { background:#fff; margin:16px 20px 0; padding:14px 18px; border:1px solid #e0e2e6; border-radius:6px; font-size:13px; color:#555; }
+  .content { margin:16px 20px; }
+  table { width:100%; border-collapse:collapse; background:#fff; font-size:13px; }
+  thead th { background:#33394a; color:#fff; text-align:left; padding:10px 10px; font-weight:bold; font-size:12px; }
+  tbody td { padding:10px 10px; border-bottom:1px solid #eceef1; }
+  tbody tr:hover { background:#f8fafc; }
+  .btn { border:none; padding:7px 14px; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer; }
+  .btn-confirm { background:#2563eb; color:#fff; }
+  .btn-adiar { background:#c0392b; color:#fff; margin-left:6px; }
+  .btn-secondary { background:#e2e4e8; color:#333; }
+  .btn-revert { background:#ff8585; color:#fff; }
+  .count-bar { display:flex; justify-content:flex-end; gap:24px; font-size:13px; color:#444; margin:10px 20px 0; }
+  .footer-section { margin:18px 20px 30px; border-radius:6px; overflow:hidden; }
+  .footer-header { background:#3a3d44; color:#fff; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; user-select:none; }
+  .footer-header span.title { font-weight:bold; font-size:15px; }
+  .footer-body { background:#454850; padding:0 18px 14px; }
+  .footer-body.collapsed { display:none; }
+  .footer-body table { background:transparent; }
+  .footer-body thead th { background:#23252b; color:#ddd; }
+  .footer-body tbody td { color:#f0f0f0; border-bottom:1px solid #50535b; }
+  .footer-body tbody tr:hover { background:#4d505a; }
+  .empty-msg { color:#bbb; font-size:13px; padding:14px 0; text-align:center; }
+  .chevron { display:inline-block; transition: transform .15s; margin-right:8px; }
+  .chevron.collapsed { transform: rotate(-90deg); }
+
+  /* Modal */
+  .overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:50; }
+  .overlay.show { display:flex; }
+  .modal { background:#fff; width:420px; border-radius:6px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+  .modal-header { background:#4a8fc2; color:#fff; padding:14px 18px; font-weight:bold; font-size:15px; }
+  .modal-body { padding:20px; }
+  .modal-body label { display:block; font-size:13px; font-weight:bold; margin-bottom:6px; margin-top:14px; }
+  .modal-body input, .modal-body select { width:100%; padding:9px 10px; border:1px solid #c7cbd1; border-radius:4px; font-size:13px; background:#f9fafb; }
+  .modal-footer { padding:14px 18px; display:flex; justify-content:flex-end; gap:10px; background:#f7f8fa; }
+  .req { color:#c0392b; font-size:11px; font-weight:normal; }
+  .toast { position:fixed; bottom:24px; right:24px; background:#222; color:#fff; padding:12px 18px; border-radius:6px; font-size:13px; opacity:0; transition:opacity .25s; z-index:60; }
+  .toast.show { opacity:1; }
+  .note { background:#fef3e2; border:1px solid #f3d8a8; color:#7a5200; font-size:12px; padding:10px 16px; margin:16px 20px 0; border-radius:6px; }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span>ADM</span><span>Arte Final</span><span>DROP</span><span>FAQ</span><span>Financeiro/Compras</span>
+  <span>OmniPromo</span><span>Produtividade</span><span>Relatório Confecção</span><span>Relatórios</span>
+  <span>Status do pedido</span><span>Vendas</span>
+</div>
+<div class="titlebar">EMISSÃO DE NOTA <span class="badge">SIMULADOR — pré-validação</span></div>
+
+<div class="note">
+  Este é um protótipo navegável (sem integração real com o Sankhya) para validar o comportamento da seção
+  "Notas Adiadas" e o fluxo de adiar/reverter, antes do desenvolvimento. Os botões "Adiar" e "Reverter" aqui
+  estão liberados para qualquer pessoa testar — no sistema real, ficam restritos à Ana e Gerência.
+</div>
+
+<div class="filterbar">
+  NFE &nbsp; N. Pedido &nbsp; De: dd/mm/aaaa &nbsp; Até: dd/mm/aaaa &nbsp; Cod. Parc &nbsp; Pendente: Sim &nbsp;
+  <button class="btn btn-confirm" style="margin-left:10px;">Filtrar</button>
+</div>
+
+<div class="count-bar">
+  <span id="countPrincipal">0 pedidos na fila</span>
+  <span id="countAdiadas">0 notas adiadas</span>
+</div>
+
+<div class="content">
+  <table>
+    <thead>
+      <tr>
+        <th>Nº PED</th><th>Nº ÚNICO</th><th>LIMITE PRODUÇÃO</th><th>NOME DO CLIENTE</th>
+        <th>NOME PARC</th><th>PESO REAL</th><th>VALOR NOTA</th><th></th>
+      </tr>
+    </thead>
+    <tbody id="tbodyPrincipal"></tbody>
+  </table>
+</div>
+
+<div class="footer-section">
+  <div class="footer-header" id="footerToggle">
+    <span class="title"><span class="chevron" id="chevronIcon">▾</span>Notas Adiadas (<span id="footerCount">0</span>)</span>
+    <span style="font-size:12px; color:#ccc;">clique para expandir/colapsar</span>
+  </div>
+  <div class="footer-body" id="footerBody">
+    <table>
+      <thead>
+        <tr>
+          <th>Nº PED</th><th>CLIENTE</th><th>ADIADO POR</th><th>DATA ADIAMENTO</th>
+          <th>RETORNA EM</th><th>MOTIVO</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="tbodyAdiadas"></tbody>
+    </table>
+    <div class="empty-msg" id="emptyAdiadas" style="display:none;">Nenhuma nota adiada no momento.</div>
+  </div>
+</div>
+
+<!-- Modal Adiar -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-header" id="modalTitle">Adiar Emissão</div>
+    <div class="modal-body">
+      <label>Data de retorno <span class="req">*obrigatório</span></label>
+      <input type="date" id="inputData">
+      <label>Motivo <span class="req">*obrigatório</span></label>
+      <select id="inputMotivo">
+        <option value="">Selecione um motivo</option>
+        <option>Pendência fiscal interna</option>
+        <option>Aguardando aprovação financeira</option>
+        <option>Ajuste de CFOP/tributação</option>
+        <option>Outro – combinado com setor</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btnCancelar">Cancelar</button>
+      <button class="btn btn-confirm" id="btnConfirmar">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Dados simulados (baseados no print original)
+let pedidos = [
+  {ped:"23100", unico:"292970", limite:"17/06/2026", cliente:"MARCIO MARQUES PEREIRA", parc:"MARCIO MARQUES", peso:"48,00 kg", valor:"R$ 3.764,00"},
+  {ped:"28773", unico:"300412", limite:"28/06/2026", cliente:"JOAQUIN JHONNY VARGAS", parc:"GIOVANNA", peso:"7,00 kg", valor:"R$ 2.468,05"},
+  {ped:"27455", unico:"298785", limite:"30/06/2026", cliente:"CHARLO COMERCIAL LTDA", parc:"CAROLINA", peso:"20,00 kg", valor:"R$ 5.541,00"},
+  {ped:"28570", unico:"300167", limite:"29/06/2026", cliente:"MATTHEIS BORG ADMINISTRACAO", parc:"FELIPE CRUZ", peso:"12,00 kg", valor:"R$ 2.972,00"},
+  {ped:"26828", unico:"297954", limite:"30/06/2026", cliente:"ASSOCIACAO DOS PROTETORES", parc:"LEONARDO", peso:"57,00 kg", valor:"R$ 13.125,00"},
+  {ped:"28673", unico:"300285", limite:"29/06/2026", cliente:"ASSOCIACAO COMERCIAL", parc:"CAROLINA", peso:"107,00 kg", valor:"R$ 12.960,00"},
+  {ped:"25155", unico:"295738", limite:"01/07/2026", cliente:"W2NIT SOLUCOES EM TECN.", parc:"CAROLINA", peso:"40,00 kg", valor:"R$ 8.490,00"},
+  {ped:"29013", unico:"300716", limite:"02/07/2026", cliente:"DUPLIQUE SOLUTION SU.", parc:"LEONARDO", peso:"7,00 kg", valor:"R$ 1.524,83"},
+];
+
+let adiadas = []; // {ped, cliente, adiadoPor, dtAdiamento, dtRetorno, motivo}
+let pedidoEmAcao = null;
+
+function fmtDataHora(d){
+  return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+}
+function fmtDataBR(isoStr){
+  const [y,m,dd] = isoStr.split('-');
+  return `${dd}/${m}/${y}`;
+}
+
+function renderPrincipal(){
+  const tb = document.getElementById('tbodyPrincipal');
+  tb.innerHTML = '';
+  pedidos.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${p.ped}</td><td>${p.unico}</td><td>${p.limite}</td><td>${p.cliente}</td>
+      <td>${p.parc}</td><td>${p.peso}</td><td>${p.valor}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-confirm">Confirmar</button>
+        <button class="btn btn-adiar" data-ped="${p.ped}">Adiar</button>
+      </td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('countPrincipal').textContent = pedidos.length + ' pedidos na fila';
+  tb.querySelectorAll('.btn-adiar').forEach(btn => {
+    btn.addEventListener('click', () => abrirModal(btn.dataset.ped));
+  });
+}
+
+function renderAdiadas(){
+  const tb = document.getElementById('tbodyAdiadas');
+  tb.innerHTML = '';
+  document.getElementById('footerCount').textContent = adiadas.length;
+  document.getElementById('countAdiadas').textContent = adiadas.length + ' notas adiadas';
+  document.getElementById('emptyAdiadas').style.display = adiadas.length === 0 ? 'block' : 'none';
+  adiadas.forEach(a => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${a.ped}</td><td>${a.cliente}</td><td>${a.adiadoPor}</td>
+      <td>${a.dtAdiamento}</td><td>${a.dtRetorno}</td><td>${a.motivo}</td>
+      <td><button class="btn btn-revert" data-ped="${a.ped}">Reverter</button></td>`;
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('.btn-revert').forEach(btn => {
+    btn.addEventListener('click', () => reverter(btn.dataset.ped));
+  });
+}
+
+function abrirModal(ped){
+  pedidoEmAcao = ped;
+  document.getElementById('modalTitle').textContent = `Adiar Emissão — Pedido Nº ${ped}`;
+  document.getElementById('inputData').value = '';
+  document.getElementById('inputMotivo').value = '';
+  document.getElementById('overlay').classList.add('show');
+}
+function fecharModal(){
+  document.getElementById('overlay').classList.remove('show');
+  pedidoEmAcao = null;
+}
+
+function confirmarAdiamento(){
+  const data = document.getElementById('inputData').value;
+  const motivo = document.getElementById('inputMotivo').value;
+  if(!data || !motivo){
+    showToast('Preencha data de retorno e motivo.');
+    return;
+  }
+  const idx = pedidos.findIndex(p => p.ped === pedidoEmAcao);
+  if(idx === -1) return;
+  const p = pedidos[idx];
+  adiadas.push({
+    ped: p.ped, cliente: p.cliente, adiadoPor: 'Ana Carolina',
+    dtAdiamento: fmtDataHora(new Date()), dtRetorno: fmtDataBR(data), motivo
+  });
+  pedidos.splice(idx,1);
+  renderPrincipal(); renderAdiadas();
+  fecharModal();
+  showToast(`Pedido ${p.ped} adiado para ${fmtDataBR(data)}.`);
+}
+
+function reverter(ped){
+  const idx = adiadas.findIndex(a => a.ped === ped);
+  if(idx === -1) return;
+  const a = adiadas[idx];
+  pedidos.push({
+    ped: a.ped, unico: '—', limite: '—', cliente: a.cliente,
+    parc: '—', peso: '—', valor: '—'
+  });
+  adiadas.splice(idx,1);
+  renderPrincipal(); renderAdiadas();
+  showToast(`Pedido ${ped} voltou para a fila principal.`);
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+document.getElementById('btnCancelar').addEventListener('click', fecharModal);
+document.getElementById('btnConfirmar').addEventListener('click', confirmarAdiamento);
+document.getElementById('overlay').addEventListener('click', (e) => { if(e.target.id === 'overlay') fecharModal(); });
+
+document.getElementById('footerToggle').addEventListener('click', () => {
+  document.getElementById('footerBody').classList.toggle('collapsed');
+  document.getElementById('chevronIcon').classList.toggle('collapsed');
+});
+
+renderPrincipal();
+renderAdiadas();
+</script>
+</body>
+</html>
