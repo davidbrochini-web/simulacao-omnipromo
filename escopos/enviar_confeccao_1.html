@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Enviar Confecção — Innovation Brindes</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --brand:#3A78C9;--brand-dark:#2B5FA0;--brand-muted:#E8F0FB;
+  --surface:#fff;--surface-2:#F4F7FC;--surface-3:#E9EFF9;--border:#D5E0F0;
+  --text-1:#1A2233;--text-2:#4A5568;--text-3:#8FA3BF;
+  --green:#1DAA65;--green-bg:#E6F7F0;--red:#DC2626;--red-bg:#FEE2E2;
+  --amber:#D97706;--amber-bg:#FEF3C7;
+  --shadow-sm:0 1px 4px rgba(40,80,160,.08);--shadow-lg:0 12px 40px rgba(40,80,160,.14);
+  --radius:10px;--radius-sm:6px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#E8EDF5;color:var(--text-1);min-height:100vh}
+
+/* TOPBAR */
+.topbar{background:var(--brand);color:#fff;display:flex;align-items:center;gap:10px;
+  padding:0 20px 0 28px;height:52px;font-size:15px;font-weight:700;
+  box-shadow:0 2px 8px rgba(30,70,160,.30)}
+.topbar svg{opacity:.9;flex-shrink:0}
+.topbar-actions{margin-left:auto;display:none;gap:8px;align-items:center}
+.btn-pdf{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+  background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.4);
+  border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;
+  transition:background .15s;font-family:'DM Sans',sans-serif}
+.btn-pdf:hover{background:rgba(255,255,255,.3)}
+
+/* PAGE */
+.page{max-width:960px;margin:24px auto 60px;padding:0 16px;display:flex;flex-direction:column;gap:15px}
+
+/* CARD */
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-sm);
+  border:1px solid var(--border);overflow:hidden}
+.card-header{background:var(--surface-2);border-bottom:1px solid var(--border);
+  padding:10px 18px;display:flex;align-items:center;gap:8px}
+.card-header h2{font-size:11px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--text-2)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--brand);flex-shrink:0}
+.card-body{padding:18px}
+
+/* STATUS BANNER */
+.status-banner{display:flex;align-items:center;gap:10px;padding:12px 20px;
+  border-radius:var(--radius);font-size:13px;font-weight:700;letter-spacing:.3px}
+.banner-pedido{background:#EFF6FF;border:1.5px solid #BFDBFE;color:var(--brand-dark)}
+.banner-perdido{background:var(--red-bg);border:1.5px solid #FECACA;color:var(--red)}
+
+/* INPUTS */
+.field-group{display:flex;flex-direction:column;gap:5px}
+.field-group label{font-size:10.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--text-3)}
+input[type="text"],input[type="file"],textarea,select{font-family:'DM Sans',sans-serif;
+  font-size:14px;color:var(--text-1);background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);padding:8px 11px;
+  transition:border-color .15s,box-shadow .15s;outline:none;width:100%}
+input:focus,textarea:focus,select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(58,120,201,.13)}
+input[readonly],textarea[readonly]{background:var(--surface-2);color:var(--text-2);
+  cursor:default;border-color:var(--border)}
+input[readonly]:focus,textarea[readonly]:focus{border-color:var(--border);box-shadow:none}
+select:disabled{background:var(--surface-2);color:var(--text-2);cursor:default}
+.mono{font-family:'DM Mono',monospace;font-size:13px}
+textarea{resize:vertical;min-height:80px;line-height:1.55}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.span-2{grid-column:span 2}
+
+/* BOTÕES */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;
+  transition:opacity .15s,transform .1s,box-shadow .15s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(58,120,201,.28)}
+.btn-primary:hover{opacity:.88}
+.btn-save{background:#fff;color:var(--brand);border:1.5px solid var(--brand);padding:5px 11px;font-size:11px}
+.btn-save:hover{background:var(--brand-muted)}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(29,170,101,.25)}
+.btn-green:hover{opacity:.88}
+.btn-red{background:#fff;color:var(--red);border:1.5px solid var(--red);padding:8px 16px}
+.btn-red:hover{background:var(--red-bg)}
+.btn-ghost{background:var(--surface-2);color:var(--text-2);border:1.5px solid var(--border)}
+.btn-ghost:hover{background:var(--surface-3)}
+.btn-amber{background:var(--amber);color:#fff}
+.btn-amber:hover{opacity:.88}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* TAGS */
+.orcamento-tag{display:inline-flex;align-items:center;gap:5px;background:var(--brand-muted);
+  color:var(--brand);border-radius:20px;padding:4px 11px;font-size:12px;font-weight:700}
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:20px;
+  padding:3px 10px;font-size:11px;font-weight:700}
+.badge-ativo{background:var(--green-bg);color:var(--green)}
+.badge-pedido{background:#DBEAFE;color:var(--brand-dark)}
+.badge-perdido{background:var(--red-bg);color:var(--red)}
+.badge-honda{background:var(--amber-bg);color:var(--amber)}
+.meta-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.meta-item{font-size:13px;color:var(--text-2)}
+.meta-item strong{color:var(--text-1)}
+.meta-item .val{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-1)}
+
+/* FORMA DE PAGAMENTO */
+.pgto-row{display:flex;align-items:center;gap:10px;padding:14px 18px;
+  background:var(--surface-2);border-bottom:1px solid var(--border)}
+.pgto-label{font-size:10.5px;font-weight:700;letter-spacing:.7px;
+  text-transform:uppercase;color:var(--text-3);white-space:nowrap}
+.pgto-value{font-size:14px;font-weight:600;color:var(--text-1);flex:1}
+.pgto-value.empty{color:var(--text-3);font-weight:400;font-style:italic}
+.btn-lupa{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;
+  background:var(--brand-muted);color:var(--brand);border:1.5px solid var(--brand);
+  border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;
+  transition:background .15s;font-family:'DM Sans',sans-serif}
+.btn-lupa:hover{background:#d4e6f8}
+
+/* PRODUTO HEADER */
+.produto-header{display:flex;align-items:center;gap:9px;padding:11px 18px;background:var(--brand);color:#fff}
+.produto-header h3{font-size:12px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase}
+.item-num{background:rgba(255,255,255,.25);border-radius:4px;padding:1px 7px;
+  font-size:11px;font-weight:700;margin-left:auto}
+
+/* FIN TABLE */
+.fin-table{display:grid;border-top:1px solid var(--border)}
+.fin-table.cols-4{grid-template-columns:1fr 1fr 1fr 1fr}
+.fin-table.cols-5{grid-template-columns:1fr 1fr 1.1fr 1.1fr 1fr}
+.fin-cell{padding:12px 14px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:4px}
+.fin-cell:last-child{border-right:none}
+.fin-label{font-size:10px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--text-3)}
+.fin-value{font-size:15px;font-weight:700;color:var(--text-1);font-family:'DM Mono',monospace}
+.fin-value.brand{color:var(--brand)}
+.fin-cell.editable-cell{background:#F6FAFF}
+.fin-cell.semdesc-cell{background:#FFFDF4}
+.fin-label.semdesc-lbl{color:var(--amber)}
+.fin-value.semdesc-val{color:var(--amber);font-size:13px;font-weight:600;text-decoration:line-through;opacity:.8}
+
+/* ITEM ACTIONS (upload/view) */
+.item-actions{display:flex;gap:8px;padding:10px 18px 14px;flex-wrap:wrap;align-items:center}
+.btn-upload{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;
+  background:var(--surface-2);color:var(--text-2);border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);font-size:11px;font-weight:600;cursor:pointer;
+  transition:background .15s;font-family:'DM Sans',sans-serif}
+.btn-upload:hover{background:var(--surface-3)}
+.btn-upload.has-file{background:var(--green-bg);color:var(--green);border-color:var(--green)}
+.btn-view{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;
+  background:var(--brand-muted);color:var(--brand);border:1.5px solid var(--brand);
+  border-radius:var(--radius-sm);font-size:11px;font-weight:600;cursor:pointer;
+  transition:background .15s;font-family:'DM Sans',sans-serif}
+.btn-view:hover{background:#d4e6f8}
+.layout-badge{font-size:11px;color:var(--green);font-weight:600}
+
+/* PRODUTOS */
+.produtos-wrapper{display:flex;flex-direction:column}
+.produto-block{border-bottom:2px solid var(--surface-3)}
+.produto-block:last-child{border-bottom:none}
+
+/* FRETE */
+.frete-section{padding:14px 18px;background:var(--surface-2);
+  border-top:2px solid var(--border);display:flex;flex-direction:column;gap:10px}
+.frete-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.frete-field{display:flex;align-items:center;gap:7px}
+.frete-field label{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.7px;color:var(--text-2);white-space:nowrap}
+.frete-field input{width:120px;padding:7px 10px;font-family:'DM Mono',monospace;font-size:13px}
+select.cifFobSel{width:auto;padding:7px 10px;font-size:13px}
+
+/* TOTAIS */
+.totais-finais{display:flex;justify-content:flex-end;align-items:stretch;
+  flex-wrap:wrap;border-top:2px solid var(--brand);background:#F2F7FE}
+.total-bloco{display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:14px 18px;border-right:1px solid var(--border)}
+.total-bloco:last-child{border-right:none}
+.tlabel{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3)}
+.tvalue{font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text-1)}
+.tvalue.brand{color:var(--brand);font-size:20px}
+.tvalue.desconto{color:var(--amber)}
+.op-sym{font-size:18px;color:var(--text-3);padding:0 6px;display:flex;align-items:center;align-self:center}
+
+/* EMAIL */
+.email-section{padding:18px}
+.textarea-save-row{display:flex;flex-direction:column;gap:6px}
+.save-row-btn{align-self:flex-end}
+
+/* RODAPÉ BOTÕES */
+.footer-btns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;padding:4px 0}
+.footer-btns .divider{flex:1}
+
+/* APROVAÇÃO */
+.aprovacao-box{padding:18px}
+.aprovacao-field{display:flex;flex-direction:column;gap:6px}
+.aprovacao-status{display:flex;align-items:center;gap:8px;padding:12px 16px;
+  border-radius:var(--radius-sm);font-size:13px;font-weight:600}
+.aprovacao-waiting{background:var(--amber-bg);border:1.5px solid #FCD34D;color:var(--amber)}
+.aprovacao-ok{background:var(--green-bg);border:1.5px solid #6EE7B7;color:var(--green)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,25,50,.45);
+  display:flex;align-items:center;justify-content:center;z-index:1000;
+  animation:fadein .18s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.modal-box{background:var(--surface);border-radius:var(--radius);
+  box-shadow:var(--shadow-lg);width:460px;max-width:95vw;
+  max-height:80vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-wide{width:640px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+.modal-header h3{font-size:14px;font-weight:700;color:var(--text-1)}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--text-3);
+  font-size:18px;line-height:1;padding:2px 6px;border-radius:4px;
+  transition:background .12s}
+.modal-close:hover{background:var(--surface-3);color:var(--text-1)}
+.modal-search{padding:12px 18px;border-bottom:1px solid var(--border)}
+.modal-search input{width:100%}
+.modal-list{overflow-y:auto;max-height:340px}
+.modal-item{display:flex;flex-direction:column;gap:2px;padding:12px 18px;
+  border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.modal-item:last-child{border-bottom:none}
+.modal-item:hover{background:var(--brand-muted)}
+.modal-item:hover .mi-nome{color:var(--brand)}
+.mi-nome{font-size:14px;font-weight:600;color:var(--text-1)}
+.mi-desc{font-size:12px;color:var(--text-3)}
+.modal-item.selected{background:var(--brand-muted)}
+.modal-item.selected .mi-nome{color:var(--brand)}
+.modal-img{max-width:100%;max-height:55vh;border-radius:var(--radius-sm);
+  border:1px solid var(--border);padding:4px}
+
+/* FADE */
+#detalhes{display:none;animation:fadeUp .28s ease both}
+#detalhes.visible{display:flex;flex-direction:column;gap:15px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#222;color:#fff;
+  padding:11px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;
+  box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;
+  opacity:0;pointer-events:none;transition:opacity .22s;z-index:2000}
+.toast.show{opacity:1}
+.toast.success{background:var(--green)}
+.toast.info{background:var(--brand)}
+.toast.error{background:var(--red)}
+
+/* PRINT */
+@media print{
+  .no-print,.topbar-actions,.modal-overlay,.toast,
+  .btn-save,.btn-upload,.btn-pdf,.btn-lupa,.footer-btns,
+  .search-card{display:none!important}
+  body{background:#fff}
+  .topbar{background:var(--brand)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{max-width:100%;margin:0;padding:8px}
+  .card{box-shadow:none;break-inside:avoid;margin-bottom:12px}
+  .produto-header{background:var(--brand)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+@media(max-width:640px){
+  .grid-2{grid-template-columns:1fr}.span-2{grid-column:span 1}
+  .fin-table.cols-4,.fin-table.cols-5{grid-template-columns:1fr 1fr}
+  .totais-finais{flex-direction:column}
+  .op-sym{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+  </svg>
+  Enviar Confecção — Innovation Brindes
+  <div id="topbarActions" class="topbar-actions">
+    <button class="btn-pdf no-print" onclick="downloadPDF()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download PDF
+    </button>
+  </div>
+</div>
+
+<div class="page">
+  <div class="card search-card no-print">
+    <div class="card-header"><div class="dot"></div><h2>Buscar Confecção</h2></div>
+    <div class="card-body">
+      <div style="display:flex;gap:10px;align-items:flex-end">
+        <div class="field-group" style="max-width:260px">
+          <label>Nº do Orçamento</label>
+          <input id="inputNro" type="text" class="mono" placeholder="225681 ou 225854"
+                 maxlength="20" onkeydown="if(event.key==='Enter') abrirPedido()"/>
+        </div>
+        <button class="btn btn-primary" style="padding:9px 22px;font-size:14px" onclick="abrirPedido()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Abrir
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="detalhes"></div>
+</div>
+
+<!-- MODAL FORMA PGTO -->
+<div id="modalPgto" class="modal-overlay" style="display:none" onclick="fecharModalFora(event,'modalPgto')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Forma de Pagamento</h3>
+      <button class="modal-close" onclick="fecharModal('modalPgto')">✕</button>
+    </div>
+    <div class="modal-search">
+      <input id="searchPgto" type="text" placeholder="Pesquisar..." oninput="filtrarPgto(this.value)"/>
+    </div>
+    <div id="listaPgto" class="modal-list"></div>
+  </div>
+</div>
+
+<!-- MODAL LAYOUT -->
+<div id="modalLayout" class="modal-overlay" style="display:none" onclick="fecharModalFora(event,'modalLayout')">
+  <div class="modal-box modal-wide" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="modalLayoutTitle">Layout Aprovado</h3>
+      <button class="modal-close" onclick="fecharModal('modalLayout')">✕</button>
+    </div>
+    <div id="modalLayoutContent" style="padding:20px;text-align:center"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════
+   DATA
+═══════════════════════════════════════ */
+const PEDIDOS = {
+  '225681':{
+    data:'28/05/2026 15h40', vendedor:'Mirian', isHonda:false,
+    cliente:{razao:'LEOO CONSULTORIA MARKETING LTDA...',cnpj:'37.638.297/0001-25',
+      nome:'Felipe Brito',telefone:'(11) 99972-1884',email:'felipe.brito@leoo.com.br'},
+    itens:[
+      {nome:'Camiseta Confecção',qtd:290,vlrFab:23.50,vlrVenda:24.21,
+        desc:'Camisa em malha penteada fio 30.1 cor preto, gola careca, silk-screen frontal peito lado direito a uma cor. Grade de P ao XXG e modelos baby look.'},
+      {nome:'Avental Confecção',qtd:150,vlrFab:18.90,vlrVenda:22.00,
+        desc:'Avental em sarja 100% algodão cor preta, silk-screen frontal com logotipo em até 2 cores. Tamanho único adulto com regulagem de alça.'},
+      {nome:'Boné Confecção',qtd:200,vlrFab:14.80,vlrVenda:19.50,
+        desc:'Boné aba curva em brim 100% algodão, 6 gomos, cor azul marinho, cinta velcro. Bordado computadorizado frontal com logotipo em até 10 mil pontos.'},
+      {nome:'Camiseta Polo Confecção',qtd:120,vlrFab:32.00,vlrVenda:39.90,
+        desc:'Polo piquê 50% algodão / 50% poliéster cor branca, gola e punho ribana, botões perolados. Bordado no peito esquerdo com logotipo até 8 mil pontos. Tamanhos P ao G3.'}
+    ]
+  },
+  '225854':{
+    data:'27/05/2026 09h15', vendedor:'Mirian', isHonda:true,
+    cliente:{razao:'HONDA AUTOMÓVEIS DO BRASIL LTDA.',cnpj:'59.275.792/0001-50',
+      nome:'Carlos Yamamoto',telefone:'(11) 3411-2800',email:'c.yamamoto@honda.com.br'},
+    itens:[
+      {nome:'Camiseta Polo Confecção',qtd:500,vlrFab:32.00,vlrVenda:42.75,
+        desc:'Polo piquê 100% algodão fio 40 cor branca com friso azul na gola, bordado no peito esquerdo com logo Honda em 3 cores, até 12 mil pontos. Grade P ao G3.'},
+      {nome:'Boné Trucker Confecção',qtd:1000,vlrFab:14.80,vlrVenda:19.00,
+        desc:'Boné aba reta estilo trucker, frente brim preto, tela traseira cinza, bordado 3D no painel frontal com logo Honda em relevo, fecho metálico ajustável.'},
+      {nome:'Jaqueta Corta-Vento Confecção',qtd:300,vlrFab:58.00,vlrVenda:68.40,
+        desc:'Jaqueta corta-vento nylon impermeável 100% poliéster, cor azul marinho, forro em tela, zíper YKK frontal, dois bolsos laterais com zíper e bolso interno. Silk-screen costas e bordado no peito. Tamanhos P ao G3.'}
+    ]
+  }
+};
+
+const FORMAS_PGTO = [
+  {id:1,nome:'Pix',desc:'Transferência imediata'},
+  {id:2,nome:'À vista (dinheiro)',desc:'Pagamento no ato'},
+  {id:3,nome:'Boleto 28 dias',desc:'Vencimento em 28 dias corridos'},
+  {id:4,nome:'Boleto 30 dias',desc:'Vencimento em 30 dias'},
+  {id:5,nome:'Boleto 30/60 dias',desc:'Duas parcelas: 30 e 60 dias'},
+  {id:6,nome:'Boleto 30/60/90 dias',desc:'Três parcelas: 30, 60 e 90 dias'},
+  {id:7,nome:'Boleto 60/90/120 dias',desc:'Três parcelas a partir de 60 dias'},
+  {id:8,nome:'Cartão de Crédito 1x',desc:'Sem juros'},
+  {id:9,nome:'Cartão de Crédito 3x',desc:'Parcelamento em 3 vezes'},
+  {id:10,nome:'Cartão de Crédito 6x',desc:'Parcelamento em 6 vezes'},
+  {id:11,nome:'Transferência bancária (TED)',desc:'TED no mesmo dia'},
+  {id:12,nome:'Faturado — 28 dias NF',desc:'NF emitida + 28 dias'},
+];
+
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+let S = {
+  nro:null, ped:null,
+  status:'orcamento',      // 'orcamento' | 'pedido' | 'perdido'
+  formaPgto:null,
+  cifFob:'CIF',
+  frete:'0,00',
+  vendas:{},
+  layouts:{},              // { i: { name, dataUrl } }
+  aprovacao:null,          // { nome, ip, data, hora }
+  aguardandoAprovacao:false,
+};
+
+/* ═══════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════ */
+const parseBR = s => parseFloat((s||'0').replace(/\./g,'').replace(',','.')) || 0;
+const fmtBR  = v => 'R$ ' + v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtNum = v => v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const calcSemDesc = venda => venda / 0.95;
+const svgIcon = (path, w=14) =>
+  `<svg width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
+
+/* ═══════════════════════════════════════
+   SAVE CURRENT INPUTS → STATE
+═══════════════════════════════════════ */
+function saveCurrentValues(){
+  if(!S.ped) return;
+  S.ped.itens.forEach((_,i)=>{ const el=document.getElementById('venda_'+i); if(el) S.vendas[i]=el.value; });
+  const fe=document.getElementById('valorFrete'); if(fe) S.frete=fe.value;
+  const ce=document.getElementById('cifFobSel'); if(ce) S.cifFob=ce.value;
+}
+
+/* ═══════════════════════════════════════
+   MAIN OPEN
+═══════════════════════════════════════ */
+function abrirPedido(){
+  const nro = document.getElementById('inputNro').value.trim();
+  if(!nro){ showToast('⚠ Informe o número do orçamento.','info'); return; }
+  const ped = PEDIDOS[nro];
+  if(!ped){ showToast('⚠ Orçamento '+nro+' não encontrado.','info'); return; }
+  S = { nro, ped, status:'orcamento', formaPgto:null, cifFob:'CIF', frete:'0,00',
+        vendas:{}, layouts:{}, aprovacao:null, aguardandoAprovacao:false };
+  ped.itens.forEach((it,i)=>{ S.vendas[i]=fmtNum(it.vlrVenda.toFixed(2)); });
+  renderDetalhes();
+  document.getElementById('topbarActions').style.display='flex';
+}
+
+/* ═══════════════════════════════════════
+   RENDER
+═══════════════════════════════════════ */
+function renderDetalhes(){
+  const det = document.getElementById('detalhes');
+  det.innerHTML = buildHTML();
+  det.classList.remove('visible');
+  void det.offsetWidth;
+  det.classList.add('visible');
+}
+
+function buildHTML(){
+  const {nro,ped,status} = S;
+  const isLocked = (status !== 'orcamento');
+  let h = '';
+
+  // STATUS BANNER
+  if(status==='pedido')
+    h += `<div class="status-banner banner-pedido">
+      ${svgIcon('<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',15)}
+      PEDIDO — campos bloqueados. Clique em "Voltar para Orçamento" para editar.
+    </div>`;
+  if(status==='perdido')
+    h += `<div class="status-banner banner-perdido">
+      ${svgIcon('<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',15)}
+      ORÇAMENTO PERDIDO — este orçamento foi encerrado.
+    </div>`;
+
+  // CABEÇALHO
+  const badge = status==='pedido'
+    ? `<span class="badge badge-pedido">${svgIcon('<polyline points="20 6 9 17 4 12"/>',10)} Pedido</span>`
+    : status==='perdido'
+    ? `<span class="badge badge-perdido">${svgIcon('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',10)} Perdido</span>`
+    : ped.isHonda
+    ? `<span class="badge badge-honda">${svgIcon('<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',10)} Honda — 5%</span>`
+    : `<span class="badge badge-ativo">${svgIcon('<polyline points="20 6 9 17 4 12"/>',10)} Ativo</span>`;
+
+  h += `<div class="card">
+    <div class="card-body" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <span class="orcamento-tag">
+          ${svgIcon('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',12)}
+          Orçamento ${nro}
+        </span>
+        <div class="meta-row">
+          <span class="meta-item"><strong>Data:&nbsp;</strong><span class="val">${ped.data}</span></span>
+          <span class="meta-item"><strong>Vendedor:&nbsp;</strong><span class="val">${ped.vendedor}</span></span>
+        </div>
+      </div>
+      ${badge}
+    </div>
+  </div>`;
+
+  // FORMA DE PAGAMENTO
+  const pgtoNome = S.formaPgto ? S.formaPgto.nome : null;
+  const lupaBtn = !isLocked
+    ? `<button class="btn-lupa no-print" onclick="abrirModalPgto()">
+        ${svgIcon('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',13)}
+        ${pgtoNome ? 'Alterar' : 'Selecionar'}
+       </button>` : '';
+  h += `<div class="card">
+    <div class="card-header"><div class="dot"></div><h2>Forma de Pagamento</h2></div>
+    <div class="pgto-row">
+      <span class="pgto-label">Pagamento:</span>
+      <span class="pgto-value ${pgtoNome?'':'empty'}">${pgtoNome || 'Nenhuma forma selecionada'}</span>
+      ${lupaBtn}
+    </div>
+  </div>`;
+
+  // CLIENTE
+  const cl = ped.cliente;
+  h += `<div class="card">
+    <div class="card-header"><div class="dot"></div><h2>Dados do Cliente</h2></div>
+    <div class="card-body">
+      <div class="grid-2">
+        <div class="field-group"><label>Razão Social</label><input type="text" readonly value="${cl.razao}"/></div>
+        <div class="field-group"><label>CNPJ</label><input type="text" readonly class="mono" value="${cl.cnpj}"/></div>
+        <div class="field-group"><label>Nome do Contato</label><input type="text" readonly value="${cl.nome}"/></div>
+        <div class="field-group"><label>Telefone</label><input type="text" readonly class="mono" value="${cl.telefone}"/></div>
+        <div class="field-group span-2"><label>E-mail</label><input type="text" readonly value="${cl.email}"/></div>
+      </div>
+    </div>
+  </div>`;
+
+  // ITENS
+  let itensH = ped.itens.map((it,i)=>buildItem(it,i,ped.isHonda,isLocked)).join('');
+
+  // FRETE
+  const freteDis = isLocked ? 'readonly' : '';
+  const cifDis   = isLocked ? 'disabled' : '';
+  const salvarFreteBtn = !isLocked ? `<button class="btn btn-save no-print" onclick="salvar('Frete')">Salvar frete</button>` : '';
+  itensH += `
+    <div class="frete-section">
+      <div class="frete-row">
+        <div class="frete-field">
+          <label>Frete do Pedido${!isLocked?' ✏':''}</label>
+          <span style="font-size:12px;color:var(--text-3)">R$</span>
+          <input id="valorFrete" type="text" class="mono" value="${S.frete}" ${freteDis} oninput="recalcular()"/>
+        </div>
+        <div class="frete-field" style="margin-left:6px">
+          <label>Modalidade</label>
+          <select id="cifFobSel" class="cifFobSel" ${cifDis} onchange="S.cifFob=this.value">
+            <option value="CIF" ${S.cifFob==='CIF'?'selected':''}>CIF — frete por conta do vendedor</option>
+            <option value="FOB" ${S.cifFob==='FOB'?'selected':''}>FOB — frete por conta do comprador</option>
+          </select>
+        </div>
+        ${salvarFreteBtn}
+      </div>
+    </div>`;
+
+  // TOTAIS
+  itensH += buildTotais(ped);
+
+  h += `<div class="card"><div class="card-header"><div class="dot"></div><h2>Itens do Pedido</h2></div>
+    <div class="produtos-wrapper">${itensH}</div></div>`;
+
+  // EMAIL
+  if(status !== 'perdido'){
+    const msgDis = isLocked ? 'readonly' : '';
+    const saveMsgBtn = !isLocked
+      ? `<button class="btn btn-save save-row-btn no-print" onclick="salvar('Mensagem')">Salvar mensagem</button>` : '';
+    h += `<div class="card">
+      <div class="card-header"><div class="dot"></div><h2>Mensagem para o Cliente</h2></div>
+      <div class="email-section">
+        <div class="textarea-save-row">
+          <div class="field-group">
+            <label>Texto que aparecerá no e-mail${!isLocked?' ✏':''}</label>
+            <textarea id="msgEmail" ${msgDis} style="min-height:100px">Oi cliente, segue o orçamento como combinado. Preciso de um OK até as 14h.</textarea>
+          </div>
+          ${saveMsgBtn}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // CAMPO APROVAÇÃO (só no pedido)
+  if(status === 'pedido'){
+    h += buildAprovacao();
+  }
+
+  // BOTÕES RODAPÉ
+  h += buildRodape(nro, status);
+
+  return h;
+}
+
+/* ═══════════════════════════════════════
+   BUILD ITEM
+═══════════════════════════════════════ */
+function buildItem(item, i, isHonda, isLocked){
+  const cols = isHonda ? 'cols-5' : 'cols-4';
+  const vv   = parseBR(S.vendas[i] || fmtNum(item.vlrVenda.toFixed(2)));
+  const sd   = isHonda ? calcSemDesc(vv) : null;
+  const hasLayout = !!S.layouts[i];
+
+  const celSemDesc = isHonda ? `
+    <div class="fin-cell semdesc-cell">
+      <span class="fin-label semdesc-lbl">Vlr sem Desconto</span>
+      <div style="display:flex;align-items:center;gap:4px;margin-top:3px">
+        <span style="font-size:11px;color:var(--amber)">R$</span>
+        <span id="semDesc_${i}" class="fin-value semdesc-val">${fmtNum(sd.toFixed(2))}</span>
+      </div>
+      <span style="font-size:10px;color:var(--amber);margin-top:3px;font-weight:600">desconto 5%</span>
+    </div>` : '';
+
+  const vendaDis = isLocked ? 'readonly' : '';
+  const salvarVendaBtn = !isLocked
+    ? `<button class="btn btn-save no-print" style="margin-top:4px" onclick="salvar('Vlr Venda — Item ${i+1}')">Salvar</button>` : '';
+
+  const uploadBtn = !isLocked
+    ? `<button class="btn-upload no-print ${hasLayout?'has-file':''}" onclick="document.getElementById('fileInput_${i}').click()">
+        ${svgIcon('<polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>',12)}
+        ${hasLayout ? '✓ Layout enviado' : 'Upload Layout'}
+       </button>
+       <input type="file" id="fileInput_${i}" style="display:none" accept="image/*,application/pdf" onchange="handleUpload(event,${i})"/>` : '';
+
+  const verBtn = hasLayout
+    ? `<button class="btn-view no-print" onclick="verLayout(${i})">
+        ${svgIcon('<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',12)}
+        Ver Layout
+       </button>
+       <span class="layout-badge">${S.layouts[i].name}</span>` : '';
+
+  return `
+  <div class="produto-block">
+    <div class="produto-header">
+      ${svgIcon('<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>')}
+      <h3>${item.nome}</h3>
+      <span class="item-num">Item ${i+1}</span>
+    </div>
+    <div style="padding:13px 18px">
+      <div class="field-group"><label>Descrição</label>
+        <textarea readonly>${item.desc}</textarea>
+      </div>
+    </div>
+    <div class="fin-table ${cols}">
+      <div class="fin-cell">
+        <span class="fin-label">Quantidade</span>
+        <span class="fin-value">${item.qtd} UN</span>
+      </div>
+      <div class="fin-cell">
+        <span class="fin-label">Vlr Fábrica</span>
+        <span class="fin-value">${fmtBR(item.vlrFab)}</span>
+      </div>
+      ${celSemDesc}
+      <div class="fin-cell ${!isLocked?'editable-cell':''}">
+        <span class="fin-label">Vlr Venda${!isLocked?' ✏':''}</span>
+        <div style="display:flex;align-items:center;gap:4px;margin-top:3px">
+          <span style="font-size:11px;color:var(--text-3)">R$</span>
+          <input id="venda_${i}" type="text" class="mono" ${vendaDis}
+                 style="padding:4px 7px;font-size:13px;width:90px"
+                 value="${fmtNum(vv.toFixed(2))}" oninput="recalcular()"/>
+        </div>
+        ${salvarVendaBtn}
+      </div>
+      <div class="fin-cell">
+        <span class="fin-label">Total Item</span>
+        <span class="fin-value brand" id="totalItem_${i}">${fmtBR(item.qtd * vv)}</span>
+      </div>
+    </div>
+    <div class="item-actions">
+      ${uploadBtn}
+      ${verBtn}
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════
+   BUILD TOTAIS
+═══════════════════════════════════════ */
+function buildTotais(ped){
+  const soma = ped.itens.reduce((a,it,i)=> a + it.qtd * parseBR(S.vendas[i]||fmtNum(it.vlrVenda.toFixed(2))), 0);
+  const somaSemDesc = ped.isHonda
+    ? ped.itens.reduce((a,it,i)=> a + it.qtd * calcSemDesc(parseBR(S.vendas[i]||fmtNum(it.vlrVenda.toFixed(2)))), 0) : 0;
+  const desconto = ped.isHonda ? (somaSemDesc - soma) : 0;
+  const frete = parseBR(S.frete);
+  const total = soma + frete;
+
+  if(ped.isHonda){
+    return `<div class="totais-finais">
+      <div class="total-bloco">
+        <span class="tlabel">Total sem Desconto</span>
+        <span class="tvalue" id="lblSemDesc">${fmtBR(somaSemDesc)}</span>
+      </div>
+      <span class="op-sym">−</span>
+      <div class="total-bloco">
+        <span class="tlabel">Valor do Desconto (5%)</span>
+        <span class="tvalue desconto" id="lblDesconto">${fmtBR(desconto)}</span>
+      </div>
+      <span class="op-sym">+</span>
+      <div class="total-bloco">
+        <span class="tlabel">Frete</span>
+        <span class="tvalue" id="lblFrete">${fmtBR(frete)}</span>
+      </div>
+      <span class="op-sym">=</span>
+      <div class="total-bloco">
+        <span class="tlabel">Total da Proposta</span>
+        <span class="tvalue brand" id="lblTotal">${fmtBR(total)}</span>
+      </div>
+    </div>`;
+  } else {
+    return `<div class="totais-finais">
+      <div class="total-bloco">
+        <span class="tlabel">Total dos Itens</span>
+        <span class="tvalue" id="lblSomaItens">${fmtBR(soma)}</span>
+      </div>
+      <span class="op-sym">+</span>
+      <div class="total-bloco">
+        <span class="tlabel">Frete</span>
+        <span class="tvalue" id="lblFrete">${fmtBR(frete)}</span>
+      </div>
+      <span class="op-sym">=</span>
+      <div class="total-bloco">
+        <span class="tlabel">Total da Proposta</span>
+        <span class="tvalue brand" id="lblTotal">${fmtBR(total)}</span>
+      </div>
+    </div>`;
+  }
+}
+
+/* ═══════════════════════════════════════
+   BUILD APROVAÇÃO
+═══════════════════════════════════════ */
+function buildAprovacao(){
+  let inner = '';
+  if(S.aprovacao){
+    const ap = S.aprovacao;
+    inner = `<div class="aprovacao-status aprovacao-ok">
+      ${svgIcon('<polyline points="20 6 9 17 4 12"/>',15)}
+      Pedido aprovado por <strong style="margin:0 4px">${ap.nome}</strong>
+      no IP <strong style="margin:0 4px">${ap.ip}</strong>
+      em <strong style="margin:0 4px">${ap.data}</strong> às <strong>${ap.hora}</strong>
+    </div>`;
+  } else if(S.aguardandoAprovacao){
+    inner = `<div class="aprovacao-status aprovacao-waiting">
+      ${svgIcon('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',15)}
+      Aguardando aprovação...
+    </div>
+    <div style="margin-top:10px">
+      <button class="btn btn-amber btn-sm no-print" style="font-size:11px;padding:5px 12px" onclick="simularAprovacao()">
+        🧪 Simular recebimento de aprovação (demo)
+      </button>
+    </div>`;
+  } else {
+    inner = `<textarea readonly placeholder="Aguardando aprovação..." style="min-height:60px;color:var(--text-3)"></textarea>`;
+  }
+  return `<div class="card">
+    <div class="card-header">
+      ${svgIcon('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>',14)}
+      <h2>Pedido Aprovado</h2>
+    </div>
+    <div class="aprovacao-box">
+      <div class="aprovacao-field">${inner}</div>
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════
+   BUILD RODAPÉ
+═══════════════════════════════════════ */
+function buildRodape(nro, status){
+  if(status === 'perdido')
+    return `<div class="footer-btns no-print">
+      <span style="font-size:13px;color:var(--red);font-weight:600;display:flex;align-items:center;gap:6px">
+        ${svgIcon('<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',14)}
+        Orçamento encerrado como perdido.
+      </span>
+    </div>`;
+
+  if(status === 'pedido'){
+    const aprovBtn = !S.aguardandoAprovacao && !S.aprovacao
+      ? `<button class="btn btn-primary" onclick="enviarAprovacao()">
+          ${svgIcon('<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',14)}
+          Enviar para Aprovação
+         </button>` : '';
+    const aprovDisabled = S.aguardandoAprovacao
+      ? `<button class="btn btn-primary" disabled>
+          ${svgIcon('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',14)}
+          Aguardando Aprovação...
+         </button>` : '';
+    return `<div class="footer-btns no-print">
+      <button class="btn btn-ghost" onclick="voltarOrcamento()">
+        ${svgIcon('<polyline points="15 18 9 12 15 6"/>',14)}
+        Voltar para Orçamento
+      </button>
+      <div class="divider"></div>
+      <button class="btn btn-green" onclick="enviarCliente('${nro}')">
+        ${svgIcon('<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',14)}
+        Enviar para o Cliente
+      </button>
+      ${aprovBtn}${aprovDisabled}
+    </div>`;
+  }
+
+  // orçamento
+  return `<div class="footer-btns no-print">
+    <button class="btn btn-red" onclick="marcarPerdido()">
+      ${svgIcon('<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',14)}
+      Marcar Perdido
+    </button>
+    <div class="divider"></div>
+    <button class="btn btn-green" onclick="enviarCliente('${nro}')">
+      ${svgIcon('<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',14)}
+      Enviar para o Cliente
+    </button>
+    <button class="btn btn-primary" onclick="gerarPedido()">
+      ${svgIcon('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',14)}
+      Gerar Pedido
+    </button>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════
+   RECALCULAR
+═══════════════════════════════════════ */
+function recalcular(){
+  const ped = S.ped; if(!ped) return;
+  let soma=0, somaSemDesc=0;
+  ped.itens.forEach((it,i)=>{
+    const vv = parseBR((document.getElementById('venda_'+i)||{}).value || S.vendas[i] || fmtNum(it.vlrVenda.toFixed(2)));
+    const sub = it.qtd * vv;
+    soma += sub;
+    const elT = document.getElementById('totalItem_'+i); if(elT) elT.textContent = fmtBR(sub);
+    if(ped.isHonda){
+      const sd = calcSemDesc(vv);
+      somaSemDesc += it.qtd * sd;
+      const elS = document.getElementById('semDesc_'+i); if(elS) elS.textContent = fmtNum(sd.toFixed(2));
+    }
+  });
+  const frete = parseBR((document.getElementById('valorFrete')||{}).value || S.frete);
+  const total = soma + frete;
+  const desc  = ped.isHonda ? somaSemDesc - soma : 0;
+  const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  if(ped.isHonda){
+    set('lblSemDesc', fmtBR(somaSemDesc));
+    set('lblDesconto', fmtBR(desc));
+  } else {
+    set('lblSomaItens', fmtBR(soma));
+  }
+  set('lblFrete', fmtBR(frete));
+  set('lblTotal', fmtBR(total));
+}
+
+/* ═══════════════════════════════════════
+   AÇÕES
+═══════════════════════════════════════ */
+function salvar(campo){ recalcular(); showToast('✓ '+campo+' salvo.','success'); }
+function enviarCliente(nro){
+  const msg = (document.getElementById('msgEmail')||{}).value||'';
+  if(!msg.trim()){ showToast('⚠ Preencha a mensagem antes de enviar.','info'); return; }
+  showToast('✓ Orçamento '+nro+' enviado ao cliente!','success');
+}
+
+function gerarPedido(){
+  if(!confirm('Transformar este orçamento em pedido?\n\nOs campos ficarão bloqueados para edição.')) return;
+  saveCurrentValues();
+  S.status = 'pedido';
+  renderDetalhes();
+  showToast('✓ Pedido gerado com sucesso!','success');
+}
+
+function voltarOrcamento(){
+  if(!confirm('Voltar para orçamento?\n\nO pedido perderá o status de pedido e voltará a ser editável.')) return;
+  S.status = 'orcamento';
+  S.aprovacao = null;
+  S.aguardandoAprovacao = false;
+  renderDetalhes();
+  showToast('Voltou para status de orçamento.','info');
+}
+
+function marcarPerdido(){
+  if(!confirm('Marcar como PERDIDO?\n\nO orçamento ficará encerrado e bloqueado.')) return;
+  saveCurrentValues();
+  S.status = 'perdido';
+  renderDetalhes();
+  showToast('Orçamento marcado como perdido.','error');
+}
+
+function enviarAprovacao(){
+  S.aguardandoAprovacao = true;
+  renderDetalhes();
+  showToast('Pedido enviado para aprovação!','info');
+}
+
+function simularAprovacao(){
+  const now = new Date();
+  const p = n => String(n).padStart(2,'0');
+  S.aprovacao = {
+    nome: 'Mirian',
+    ip:   '177.52.18.99',
+    data: `${p(now.getDate())}/${p(now.getMonth()+1)}/${now.getFullYear()}`,
+    hora: `${p(now.getHours())}h${p(now.getMinutes())}`
+  };
+  S.aguardandoAprovacao = false;
+  renderDetalhes();
+  showToast('✓ Pedido aprovado!','success');
+}
+
+function downloadPDF(){ window.print(); }
+
+/* ═══════════════════════════════════════
+   MODAL FORMA PGTO
+═══════════════════════════════════════ */
+function abrirModalPgto(){
+  renderListaPgto('');
+  document.getElementById('searchPgto').value = '';
+  document.getElementById('modalPgto').style.display = 'flex';
+  setTimeout(()=> document.getElementById('searchPgto').focus(), 100);
+}
+function fecharModal(id){ document.getElementById(id).style.display='none'; }
+function fecharModalFora(e, id){ if(e.target.id===id) fecharModal(id); }
+
+function renderListaPgto(q){
+  const items = FORMAS_PGTO.filter(f =>
+    f.nome.toLowerCase().includes(q.toLowerCase()) ||
+    f.desc.toLowerCase().includes(q.toLowerCase())
+  );
+  document.getElementById('listaPgto').innerHTML = items.map(f =>
+    `<div class="modal-item ${S.formaPgto&&S.formaPgto.id===f.id?'selected':''}"
+         onclick="selecionarPgto(${f.id})">
+       <span class="mi-nome">${f.nome}</span>
+       <span class="mi-desc">${f.desc}</span>
+     </div>`
+  ).join('') || `<div style="padding:20px;text-align:center;color:var(--text-3)">Nenhuma opção encontrada</div>`;
+}
+function filtrarPgto(q){ renderListaPgto(q); }
+function selecionarPgto(id){
+  S.formaPgto = FORMAS_PGTO.find(f=>f.id===id);
+  fecharModal('modalPgto');
+  // update just the pgto display without full re-render
+  const el = document.querySelector('.pgto-value');
+  if(el){ el.textContent = S.formaPgto.nome; el.classList.remove('empty'); }
+  const lupa = document.querySelector('.btn-lupa');
+  if(lupa){ lupa.innerHTML = lupa.innerHTML.replace(/Selecionar|Alterar/,'Alterar'); }
+  showToast('✓ Forma de pagamento selecionada.','success');
+}
+
+/* ═══════════════════════════════════════
+   UPLOAD LAYOUT
+═══════════════════════════════════════ */
+function handleUpload(event, i){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    S.layouts[i] = { name: file.name, dataUrl: e.target.result, type: file.type };
+    // re-render just the item actions area
+    renderDetalhes();
+    showToast('✓ Layout "'+file.name+'" enviado para o Item '+(i+1)+'.','success');
+  };
+  reader.readAsDataURL(file);
+}
+function verLayout(i){
+  const layout = S.layouts[i];
+  if(!layout){ showToast('Nenhum layout enviado.','info'); return; }
+  document.getElementById('modalLayoutTitle').textContent = 'Layout — Item '+(i+1)+': '+S.ped.itens[i].nome;
+  const content = document.getElementById('modalLayoutContent');
+  if(layout.type && layout.type.startsWith('image/')){
+    content.innerHTML = `<img src="${layout.dataUrl}" class="modal-img" alt="Layout ${i+1}"/>
+      <p style="margin-top:12px;font-size:12px;color:var(--text-3)">${layout.name}</p>`;
+  } else {
+    content.innerHTML = `<div style="padding:30px;background:var(--surface-2);border-radius:var(--radius-sm);margin:10px 0">
+      ${svgIcon('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',40)}
+      <p style="margin-top:12px;font-size:14px;font-weight:600">${layout.name}</p>
+      <p style="font-size:12px;color:var(--text-3);margin-top:4px">Arquivo PDF — visualização não disponível no navegador</p>
+    </div>`;
+  }
+  document.getElementById('modalLayout').style.display = 'flex';
+}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+let _tt;
+function showToast(msg, type='success'){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show '+type;
+  clearTimeout(_tt); _tt = setTimeout(()=>{ t.className='toast'; }, 3400);
+}
+</script>
+</body>
+</html>
